@@ -1,17 +1,5 @@
 /*
-  The circuit:
-   SD card attached to SPI bus as follows:
- ** MOSI - pin 11
- ** MISO - pin 12
- ** CLK - pin 13
- ** CS - pin 4 (for MKRZero SD: SDCARD_SS_PIN)
-
-  BME280 attached to I2C
-  Red LED attached to pin 7, Green LED attached to pin 6
-
-  created  03/01/2022
-  by John Staveley
-
+  See Readme.md file for overview of hardware setup
 */
 
 #include <Wire.h>
