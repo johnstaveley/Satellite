@@ -82,7 +82,6 @@ void setup() {
   }  
 
   // TODO: Load PrepasRun.txt from file into PROGMEM memory see https://create.arduino.cc/projecthub/john-bradnam/reducing-your-memory-usage-26ca05  
-
   Serial.println(F("Init complete"));
 }
 
@@ -149,5 +148,62 @@ void loop() {
     fileCounter++;
     digitalWrite(redLedPin, LOW);
   }
+  createSatelliteMessage(now.hour(), now.minute(), now.second());
   delay(delayTime); // Go to sleep  
+}
+
+void createSatelliteMessage(uint8_t day, uint8_t hour, uint8_t min) {
+  ArgosMsgTypeDef_t message;
+  int i;
+  uint32_t lon  = 450000;
+  uint32_t lat  = 25000;
+  uint32_t alt  = 65;
+
+  uint8_t userdata[20] = {',', 'H', 'e', 'l', 'l', 'o', ' ', 'K', 'i', 'n', 'e', 'i', 's', ' ', '!', 0, 0, 0, 0, 0};
+
+  vMSGKINEIS_STDV1_cleanPayload(&message);
+
+  u16MSGKINEIS_STDV1_setAcqPeriod(&message, USER_MSG, POSITION_STD_ACQ_PERIOD);
+  u16MSGKINEIS_STDV1_setDate(&message, day, hour, min, POSITION_STD_DATE);
+  u16MSGKINEIS_STDV1_setLocation(&message, lon, lat, alt, POSITION_STD_LOC);
+  u16MSGKINEIS_STDV1_setUserData(&message, userdata, 20, POSITION_STD_USER_DATA);
+  vMSGKINEIS_STDV1_setCRC16andBCH32(&message, POSITION_STD_BCH32);
+
+  Serial.println(F("Hexadecimal satellite message:"));
+  char buf[3];
+  String dataString = "";  
+  for (i = 0; i < ARGOS_FRAME_LENGTH; i++) {
+    sprintf(buf, "%x ", message.payload[i]);
+    dataString += buf;
+  }
+  Serial.println(dataString);
+
+  Serial.println();
+
+  //Serial.println(F("Decimal:"));
+  //for (i = 0; i < ARGOS_FRAME_LENGTH; i++)
+  //  printf("%d ", message.payload[i]);
+
+  //Serial.println();
+  //Serial.println();
+
+  //Serial.println(F("Binary :"));
+  //for (i = 0; i < ARGOS_FRAME_LENGTH; i++)
+  //  print_bits(message.payload[i]);
+
+  //Serial.println();
+}
+
+void print_bits(unsigned char octet)
+{
+  int z = 128, oct = octet;
+
+  while (z > 0)
+  {
+    if (oct & z)
+      printf("1");
+    else
+      printf("0");
+    z >>= 1;
+  }
 }
