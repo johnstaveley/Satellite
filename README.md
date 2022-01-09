@@ -20,4 +20,6 @@ In order to follow this demo project, you need the following hardware configured
 - Red LED attached to pin 7
 - Green LED attached to pin 6
 
+![Hardware configuration for satellite logger](https://raw.githubusercontent.com/johnstaveley/Satellite/main/SatelliteHardware.png "Circuit diagram")
+
   
