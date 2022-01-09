@@ -148,19 +148,21 @@ void loop() {
     fileCounter++;
     digitalWrite(redLedPin, LOW);
   }
-  createSatelliteMessage(now.hour(), now.minute(), now.second());
+  createSatelliteMessage(now.hour(), now.minute(), now.second(), "Hello world");
   delay(delayTime); // Go to sleep  
 }
 
-void createSatelliteMessage(uint8_t day, uint8_t hour, uint8_t min) {
+void createSatelliteMessage(uint8_t day, uint8_t hour, uint8_t min, String payload) {
   ArgosMsgTypeDef_t message;
   int i;
   uint32_t lon  = 450000;
   uint32_t lat  = 25000;
   uint32_t alt  = 65;
 
-  uint8_t userdata[20] = {',', 'H', 'e', 'l', 'l', 'o', ' ', 'K', 'i', 'n', 'e', 'i', 's', ' ', '!', 0, 0, 0, 0, 0};
-
+  //uint8_t userdata[20] = {',', 'H', 'e', 'l', 'l', 'o', ' ', 'K', 'i', 'n', 'e', 'i', 's', ' ', '!', 0, 0, 0, 0, 0};
+  uint8_t userdata[20]; // TODO: Do I need to pad the remainder of the array with zeros?
+  payload.getBytes(userdata, payload.length());
+  
   vMSGKINEIS_STDV1_cleanPayload(&message);
 
   u16MSGKINEIS_STDV1_setAcqPeriod(&message, USER_MSG, POSITION_STD_ACQ_PERIOD);
