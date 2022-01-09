@@ -8,6 +8,7 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include "RTClib.h" // Real time clock on data logger board
+#include "msg_kineis_std.h"
 
 RTC_PCF8523 rtc; // Real time clock
 #define SEALEVELPRESSURE_HPA (1013.25) // BME280hi
