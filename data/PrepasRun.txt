@@ -1,0 +1,156 @@
+sat SR date begin 2022/01/01 03:07:50 duration (min) 42.833333 site Max (deg)  20
+sat SR date begin 2022/01/01 04:44:50 duration (min) 45.833333 site Max (deg)  84
+sat NP date begin 2022/01/01 06:13:20 duration (min) 42.833333 site Max (deg)  19
+sat SR date begin 2022/01/01 06:27:20 duration (min) 41.333333 site Max (deg)  16
+sat NK date begin 2022/01/01 07:30:50 duration (min) 44.833333 site Max (deg)  33
+sat MA date begin 2022/01/01 07:47:50 duration (min) 45.833333 site Max (deg)  46
+sat NP date begin 2022/01/01 07:52:50 duration (min) 46.333333 site Max (deg)  81
+sat MC date begin 2022/01/01 08:27:50 duration (min) 42.833333 site Max (deg)  19
+sat NN date begin 2022/01/01 08:59:49 duration (min) 41.366667 site Max (deg)  14
+sat MB date begin 2022/01/01 09:08:50 duration (min) 45.833333 site Max (deg)  42
+sat NK date begin 2022/01/01 09:10:19 duration (min) 45.366667 site Max (deg)  48
+sat MA date begin 2022/01/01 09:28:19 duration (min) 44.866667 site Max (deg)  35
+sat NP date begin 2022/01/01 09:34:20 duration (min) 43.333333 site Max (deg)  20
+sat MC date begin 2022/01/01 10:07:19 duration (min) 45.866667 site Max (deg)  81
+sat NN date begin 2022/01/01 10:39:19 duration (min) 46.366667 site Max (deg)  74
+sat MB date begin 2022/01/01 10:49:19 duration (min) 44.866667 site Max (deg)  39
+sat MC date begin 2022/01/01 11:48:19 duration (min) 42.366667 site Max (deg)  19
+sat NN date begin 2022/01/01 12:20:19 duration (min) 44.366667 site Max (deg)  25
+sat NP date begin 2022/01/01 16:07:49 duration (min) 41.866667 site Max (deg)  16
+sat SR date begin 2022/01/01 16:50:49 duration (min) 43.366667 site Max (deg)  20
+sat NK date begin 2022/01/01 17:19:19 duration (min) 43.366667 site Max (deg)  21
+sat MA date begin 2022/01/01 17:37:49 duration (min) 44.366667 site Max (deg)  28
+sat NP date begin 2022/01/01 17:45:19 duration (min) 45.866667 site Max (deg)  64
+sat MC date begin 2022/01/01 18:19:19 duration (min) 40.866667 site Max (deg)  14
+sat SR date begin 2022/01/01 18:29:49 duration (min) 45.366667 site Max (deg)  74
+sat NN date begin 2022/01/01 18:54:49 duration (min) 40.366667 site Max (deg)  13
+sat NK date begin 2022/01/01 18:57:19 duration (min) 45.866667 site Max (deg)  81
+sat MB date begin 2022/01/01 18:58:49 duration (min) 44.366667 site Max (deg)  26
+sat MA date begin 2022/01/01 19:16:49 duration (min) 45.866667 site Max (deg)  62
+sat NP date begin 2022/01/01 19:27:19 duration (min) 44.366667 site Max (deg)  25
+sat MC date begin 2022/01/01 19:55:49 duration (min) 45.866667 site Max (deg)  57
+sat SR date begin 2022/01/01 20:10:19 duration (min) 41.866667 site Max (deg)  17
+sat NN date begin 2022/01/01 20:31:49 duration (min) 45.866667 site Max (deg)  49
+sat MB date begin 2022/01/01 20:37:49 duration (min) 45.866667 site Max (deg)  66
+sat NK date begin 2022/01/01 20:39:49 duration (min) 41.866667 site Max (deg)  16
+sat MC date begin 2022/01/01 21:36:49 duration (min) 44.866667 site Max (deg)  28
+sat NN date begin 2022/01/01 22:12:49 duration (min) 45.366667 site Max (deg)  34
+sat SR date begin 2022/01/02 02:38:18 duration (min) 40.400000 site Max (deg)  13
+sat SR date begin 2022/01/02 04:14:18 duration (min) 45.400000 site Max (deg)  55
+sat SR date begin 2022/01/02 05:54:48 duration (min) 43.900000 site Max (deg)  27
+sat NP date begin 2022/01/02 06:01:18 duration (min) 41.900000 site Max (deg)  15
+sat NK date begin 2022/01/02 07:05:48 duration (min) 43.400000 site Max (deg)  21
+sat MA date begin 2022/01/02 07:27:18 duration (min) 45.400000 site Max (deg)  33
+sat NP date begin 2022/01/02 07:40:48 duration (min) 46.400000 site Max (deg)  77
+sat MC date begin 2022/01/02 08:07:48 duration (min) 40.900000 site Max (deg)  13
+sat NK date begin 2022/01/02 08:44:48 duration (min) 45.900000 site Max (deg)  72
+sat MB date begin 2022/01/02 08:48:18 duration (min) 44.900000 site Max (deg)  30
+sat MA date begin 2022/01/02 09:07:18 duration (min) 45.900000 site Max (deg)  48
+sat NP date begin 2022/01/02 09:21:48 duration (min) 44.400000 site Max (deg)  24
+sat MC date begin 2022/01/02 09:46:18 duration (min) 45.900000 site Max (deg)  70
+sat NK date begin 2022/01/02 10:25:48 duration (min) 41.900000 site Max (deg)  17
+sat NN date begin 2022/01/02 10:26:48 duration (min) 46.400000 site Max (deg)  60
+sat MB date begin 2022/01/02 10:28:18 duration (min) 45.900000 site Max (deg)  53
+sat MC date begin 2022/01/02 11:27:18 duration (min) 43.900000 site Max (deg)  25
+sat NN date begin 2022/01/02 12:08:18 duration (min) 44.400000 site Max (deg)  29
+sat NP date begin 2022/01/02 15:56:17 duration (min) 40.933333 site Max (deg)  14
+sat NK date begin 2022/01/02 16:55:17 duration (min) 40.933333 site Max (deg)  15
+sat MA date begin 2022/01/02 17:17:47 duration (min) 43.433333 site Max (deg)  21
+sat NP date begin 2022/01/02 17:33:17 duration (min) 45.933333 site Max (deg)  53
+sat SR date begin 2022/01/02 17:58:47 duration (min) 45.433333 site Max (deg)  64
+sat NK date begin 2022/01/02 18:31:47 duration (min) 45.933333 site Max (deg)  63
+sat MB date begin 2022/01/02 18:39:17 duration (min) 42.933333 site Max (deg)  20
+sat MA date begin 2022/01/02 18:56:17 duration (min) 45.933333 site Max (deg)  82
+sat NP date begin 2022/01/02 19:14:47 duration (min) 44.933333 site Max (deg)  31
+sat MC date begin 2022/01/02 19:35:47 duration (min) 44.933333 site Max (deg)  41
+sat SR date begin 2022/01/02 19:38:17 duration (min) 43.933333 site Max (deg)  26
+sat NK date begin 2022/01/02 20:12:47 duration (min) 43.933333 site Max (deg)  25
+sat MB date begin 2022/01/02 20:16:47 duration (min) 46.433333 site Max (deg)  83
+sat NN date begin 2022/01/02 20:19:47 duration (min) 45.433333 site Max (deg)  41
+sat MA date begin 2022/01/02 20:38:47 duration (min) 42.433333 site Max (deg)  16
+sat MC date begin 2022/01/02 21:15:47 duration (min) 45.433333 site Max (deg)  39
+sat MB date begin 2022/01/02 21:59:47 duration (min) 42.433333 site Max (deg)  17
+sat NN date begin 2022/01/02 22:00:17 duration (min) 45.933333 site Max (deg)  41
+2022-01-01T03:07:50 A3|A3|3
+2022-01-01T03:50:40 __|__|4
+2022-01-01T04:44:50 A3|A3|3
+2022-01-01T05:30:40 __|__|4
+2022-01-01T06:13:20 A3|__|1
+2022-01-01T06:27:20 A3|A3|3
+2022-01-01T07:08:40 __|__|4
+2022-01-01T07:30:50 A2|__|1
+2022-01-01T07:47:50 A2|A3|3
+2022-01-01T08:15:40 A3|A3|5
+2022-01-01T08:59:50 A2|A3|5
+2022-01-01T09:10:40 A2|__|1
+2022-01-01T09:28:20 A2|A3|3
+2022-01-01T09:55:45 A3|A3|5
+2022-01-01T10:39:20 A2|A3|5
+2022-01-01T10:53:15 A2|__|1
+2022-01-01T11:25:45 A3|__|5
+2022-01-01T11:34:15 __|__|4
+2022-01-01T11:48:20 A3|A3|3
+2022-01-01T12:20:20 A2|A3|5
+2022-01-01T12:30:45 A2|__|1
+2022-01-01T13:04:45 __|__|4
+2022-01-01T16:07:50 A3|__|1
+2022-01-01T16:49:45 __|__|4
+2022-01-01T16:50:50 A3|A3|3
+2022-01-01T17:19:20 A2|A3|5
+2022-01-01T17:34:15 A2|__|1
+2022-01-01T17:37:50 A2|A3|3
+2022-01-01T18:02:45 A3|A3|5
+2022-01-01T18:54:50 A2|A3|5
+2022-01-01T19:15:15 A2|__|1
+2022-01-01T19:16:50 A2|A3|3
+2022-01-01T19:43:15 A3|A3|5
+2022-01-01T20:31:50 A2|A3|5
+2022-01-01T20:52:15 A2|__|1
+2022-01-01T21:21:45 A3|__|5
+2022-01-01T21:23:45 __|__|4
+2022-01-01T21:36:50 A3|A3|3
+2022-01-01T22:12:50 A2|A3|5
+2022-01-01T22:21:45 A2|__|1
+2022-01-01T22:58:15 __|__|4
+2022-01-02T02:38:20 A3|A3|3
+2022-01-02T03:18:45 __|__|4
+2022-01-02T04:14:20 A3|A3|3
+2022-01-02T04:59:45 __|__|4
+2022-01-02T05:54:50 A3|A3|3
+2022-01-02T06:38:45 A3|__|1
+2022-01-02T06:43:15 __|__|4
+2022-01-02T07:05:50 A2|__|1
+2022-01-02T07:27:20 A2|A3|3
+2022-01-02T07:49:15 A3|A3|5
+2022-01-02T08:44:50 A2|A3|5
+2022-01-02T08:48:45 A2|__|1
+2022-01-02T09:07:20 A2|A3|3
+2022-01-02T09:30:45 A3|A3|5
+2022-01-02T10:25:50 A2|A3|5
+2022-01-02T10:32:15 A2|__|1
+2022-01-02T11:13:15 A3|__|5
+2022-01-02T11:14:15 __|__|4
+2022-01-02T11:27:20 A3|A3|3
+2022-01-02T12:08:20 A2|A3|5
+2022-01-02T12:11:15 A2|__|1
+2022-01-02T12:52:45 __|__|4
+2022-01-02T15:56:20 A3|__|1
+2022-01-02T16:37:15 __|__|4
+2022-01-02T16:55:20 A2|__|1
+2022-01-02T17:17:50 A2|A3|3
+2022-01-02T17:36:15 A3|A3|5
+2022-01-02T18:31:50 A2|A3|5
+2022-01-02T18:44:15 A2|__|1
+2022-01-02T18:56:20 A2|A3|3
+2022-01-02T19:17:45 A3|A3|5
+2022-01-02T20:12:50 A2|A3|5
+2022-01-02T20:22:15 A2|__|1
+2022-01-02T20:38:50 A2|A3|3
+2022-01-02T21:05:15 A3|A3|5
+2022-01-02T22:00:20 A2|A3|5
+2022-01-02T22:01:15 A2|__|1
+2022-01-02T22:46:15 __|__|4
+sat SR date begin 2022/01/01 03:07:50 duration (min) 42.833333 site Max (deg)  20
+sat MC date begin 2022/01/01 10:07:19 duration (min) 45.866667 site Max (deg)  81
+sat MC date begin 2022/01/01 10:07:19 duration (min) 45.866667 site Max (deg)  81
+sat MC date begin 2022/01/01 10:07:19 duration (min) 45.866667 site Max (deg)  81
