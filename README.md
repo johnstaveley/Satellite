@@ -13,6 +13,7 @@ The Arduino IDE was used to develop this code and upload it to a board. When the
 # HARDWARE SETUP
 In order to follow this demo project, you need the following hardware configured thus:
 
+- USB 3 socket (provides sufficient power for Kineis board)
 - 1x Arduino Uno v3 
 - 1x Adafruit Assembled Data Logging shield for Arduino attached to SPI bus as follows:
 	- MOSI - pin 11
@@ -27,6 +28,9 @@ In order to follow this demo project, you need the following hardware configured
 	- +ve and -ve attached to appropriate pins
 - 1x Red LED attached to pin 7
 - 1x Green LED attached to pin 6
+- 1x Kineis shield v2
+	- Jumpers 1,2,3 set to Arduino
+	- Jumper 7 set to 5V alim
 
 BME280: https://www.arduino.cc/reference/en/libraries/adafruit-bme280-library/
 Data Logger: https://thepihut.com/products/adafruit-assembled-data-logging-shield-for-arduino?variant=27739231185

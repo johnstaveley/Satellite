@@ -2,84 +2,31 @@
   See Readme.md file for overview of hardware setup
 */
 
-#include <Wire.h>
-#include <SPI.h> // Required for data logger
-#include <SD.h>  // Required for data logger
-#include <Adafruit_Sensor.h>
-#include <Adafruit_BME280.h>
-#include "RTClib.h" // Real time clock on data logger board
-#include "msg_kineis_std.h"
+#include <SPI.h>  // Required for data logger
+#include <SD.h>   // Required for data logger
+#include <Wire.h>             // Required for BME280
+#include <Adafruit_BME280.h>  // Required for BME280
+#include "RTClib.h"           // Real time clock on data logger board
+#include "msg_kineis_std.h"   // Required for satellite comms
 
 RTC_PCF8523 rtc; // Real time clock
-#define SEALEVELPRESSURE_HPA (1013.25) // BME280hi
-Adafruit_BME280 bme;     // uses I2C
-#define cardSelect 10 // SD Card
+Adafruit_BME280 bme;    // uses I2C
+#define cardSelect 10   // SD Card
 #define delayTime 59000 // 1 minute minus 1 second to display status LED
-#define redLedPin 7
-#define greenLedPin 6
+#define redLedPin 2
+#define greenLedPin 3
 unsigned int fileCounter = 1;
+//StackArray <char> stack;
 
 void setup() {
 
-  pinMode(redLedPin, OUTPUT); 
-  digitalWrite(redLedPin, LOW);
-  pinMode(greenLedPin, OUTPUT); 
-  digitalWrite(greenLedPin, LOW);
-  
-  // Open serial communications and wait for port to open:
-  Serial.begin(115200);
-  while (!Serial) {
-    delay(10); // wait for serial port to connect. Needed for native USB port only
-  }
+  initialiseHardware();
 
-  Serial.println(F("Init SD Card"));
-
-  // see if the card is present and can be initialized:
-  if (!SD.begin(cardSelect)) {
-    Serial.println(F("SD Card failed, or not present"));
-    // don't do anything more:
-    while (1) delay(10);
-  }
-
-  Serial.println(F("Init RTC"));
-  if (! rtc.begin()) {
-    Serial.println(F("Couldn't find RTC"));
-    Serial.flush();
-    while (1) delay(10);
-  }
-
-  if (! rtc.initialized() || rtc.lostPower()) {
-    Serial.println("RTC is NOT initialized, let's set the time!");
-    // When time needs to be set on a new device, or after a power loss, the
-    // following line sets the RTC to the date & time this sketch was compiled
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-    // This line sets the RTC with an explicit date & time, for example to set
-    // January 21, 2014 at 3am you would call:
-    // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
-    //
-    // Note: allow 2 seconds after inserting battery or applying external power
-    // without battery before calling adjust(). This gives the PCF8523's
-    // crystal oscillator time to stabilize. If you call adjust() very quickly
-    // after the RTC is powered, lostPower() may still return true.
-  }
-
-  rtc.start();
+  initialiseSdCard();
 
   Wire.begin();
 
-  Serial.println(F("Init BME280"));
-  unsigned sensorStatus;
-  sensorStatus = bme.begin(0x76, &Wire); // Need to set specific address for the BME280 I used
-  if (!sensorStatus) {
-    Serial.println(F("Could not find a valid BME280 sensor, check wiring, address, sensor ID!"));
-    Serial.print(F("SensorID was: 0x"));
-    Serial.println(bme.sensorID(), 16);
-    //Serial.print(F(" ID of 0xFF probably means a bad address, a BMP 180 or BMP 085\n"));
-    //Serial.println(F(" ID 0x56-0x58 = BMP280"));
-    //Serial.println(F(" ID 0x60 = BME280"));
-    //Serial.println(F(" ID 0x61 = BME680"));
-    while (1) delay(10);
-  }  
+  initialiseBme280();
 
   // TODO: Load PrepasRun.txt from file into PROGMEM memory see https://create.arduino.cc/projecthub/john-bradnam/reducing-your-memory-usage-26ca05  
   Serial.println(F("Init complete"));
@@ -94,16 +41,14 @@ void loop() {
   String dataString = "";
   dataString.reserve(30);
   dataString += bme.readTemperature();
-  dataString += "°C, ";
+  dataString += "°C;";
   dataString += bme.readPressure() / 100.0F;
-  dataString += "hPa, ";
-  dataString += bme.readAltitude(SEALEVELPRESSURE_HPA);
-  dataString += "m, ";
+  dataString += "hPa;";
   dataString += bme.readHumidity();
-  dataString += "%";
+  dataString += "%;";
 
   char buf[60];
-  sprintf(buf,"%02d/%02d/%04d %02d:%02d:%02d %s;", now.day(), now.month(), now.year(), now.hour(), now.minute(), now.second(), dataString.c_str());
+  sprintf(buf,"%02d/%02d/%04d %02d:%02d:%02d;%s", now.day(), now.month(), now.year(), now.hour(), now.minute(), now.second(), dataString.c_str());
 
   // open the file. note that only one file can be open at a time
   // so you have to close this one before opening another.
@@ -208,4 +153,73 @@ void print_bits(unsigned char octet)
       printf("0");
     z >>= 1;
   }
+}
+
+void initialiseSdCard() {
+
+  Serial.println(F("Init SD Card"));
+
+  // see if the card is present and can be initialized:
+  if (!SD.begin(cardSelect)) {
+    Serial.println(F("SD Card failed, or not present"));
+    // don't do anything more:
+    while (1) delay(10);
+  }
+
+  Serial.println(F("Init RTC"));
+  if (! rtc.begin()) {
+    Serial.println(F("Couldn't find RTC"));
+    Serial.flush();
+    while (1) delay(10);
+  }
+
+  if (! rtc.initialized() || rtc.lostPower()) {
+    Serial.println("RTC is NOT initialized, let's set the time!");
+    // When time needs to be set on a new device, or after a power loss, the
+    // following line sets the RTC to the date & time this sketch was compiled
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    // This line sets the RTC with an explicit date & time, for example to set
+    // January 21, 2014 at 3am you would call:
+    // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+    //
+    // Note: allow 2 seconds after inserting battery or applying external power
+    // without battery before calling adjust(). This gives the PCF8523's
+    // crystal oscillator time to stabilize. If you call adjust() very quickly
+    // after the RTC is powered, lostPower() may still return true.
+  }
+
+  rtc.start();
+  
+}
+
+void initialiseBme280() {
+
+  Serial.println(F("Init BME280"));
+  unsigned sensorStatus;
+  sensorStatus = bme.begin(0x76, &Wire); // Need to set specific address for the BME280 I used
+  if (!sensorStatus) {
+    Serial.println(F("Could not find a valid BME280 sensor, check wiring, address, sensor ID!"));
+    Serial.print(F("SensorID was: 0x"));
+    Serial.println(bme.sensorID(), 16);
+    //Serial.print(F(" ID of 0xFF probably means a bad address, a BMP 180 or BMP 085\n"));
+    //Serial.println(F(" ID 0x56-0x58 = BMP280"));
+    //Serial.println(F(" ID 0x60 = BME280"));
+    //Serial.println(F(" ID 0x61 = BME680"));
+    while (1) delay(10);
+  }    
+}
+
+void initialiseHardware() {
+  
+  pinMode(redLedPin, OUTPUT); 
+  digitalWrite(redLedPin, LOW);
+  pinMode(greenLedPin, OUTPUT); 
+  digitalWrite(greenLedPin, LOW);
+  
+  // Open serial communications and wait for port to open:
+  Serial.begin(9600);
+  while (!Serial) {
+    delay(10); // wait for serial port to connect. Needed for native USB port only
+  }
+
 }
