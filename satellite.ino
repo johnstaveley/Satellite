@@ -4,6 +4,7 @@
 
 // Compilation flags
 #define Satellite
+#define SDCard
 //#define BME280
 
 // Required for data logger
@@ -22,6 +23,7 @@
 #include "msg_kineis_std.h"   
 
 // data logger
+
 RTC_PCF8523 rtc; // Real time clock
 unsigned int fileCounter = 1;
 #define cardSelect 10   // SD Card
@@ -39,6 +41,7 @@ SoftwareSerial kserial(RX_KIM, TX_KIM);
 #endif
 KIM kim(&kserial);
 #endif
+#include "satellite_pass.h"
 
 // General
 #define delayTime 59000 // 1 minute minus 1 second to display status LED
@@ -47,7 +50,6 @@ Adafruit_BME280 bme;    // uses I2C
 #endif
 #define redLedPin 2
 #define greenLedPin 3
-#include "satellite_pass.h"
 
 //StackArray <char> stack;
 
@@ -85,6 +87,7 @@ void loop() {
   sprintf(buf,"%04d%02d%02dT%02d%02d%02d%s", now.year(), now.month(), now.day(), now.hour(), now.minute(), now.second(), dataString.c_str());
 
   String filename = "datalog" + String(fileCounter) + ".txt";
+#ifdef SDCard
   File dataFile = SD.open(filename, FILE_WRITE);
   if (dataFile) {
     dataFile.println(buf);
@@ -94,33 +97,15 @@ void loop() {
   } else {
     Serial.println(F("Error opening SD card"));
   }
+#endif
 
   delay(1000);
   digitalWrite(greenLedPin, LOW);
 
 #ifdef Satellite
   // Work out if it is time to transmit or not
-  SatellitePass satellitePasses[] = {
-    //SatellitePass (DateTime (2022, 1, 15, 4, 42, 0), DateTime (2022, 1, 15, 4, 44, 0)),
-    //SatellitePass (DateTime (2022, 1, 15, 7, 27, 0), DateTime (2022, 1, 15, 7, 31, 0)),
-    //SatellitePass (DateTime (2022, 1, 15, 8, 50, 0), DateTime (2022, 1, 15, 8, 54, 0)),
-   // SatellitePass (DateTime (2022, 1, 15, 9, 07, 0), DateTime (2022, 1, 15, 9, 10, 0)),
-  //  SatellitePass (DateTime (2022, 1, 15, 10, 00, 0), DateTime (2022, 1, 15, 10, 03, 0)),
-    //SatellitePass (DateTime (2022, 1, 15, 10, 53, 0), DateTime (2022, 1, 15, 10, 58, 0)),
-    SatellitePass (DateTime (2022, 1, 15, 11, 12, 0), DateTime (2022, 1, 15, 11, 18, 0)),
-    //SatellitePass (DateTime (2022, 1, 15, 18, 26, 0), DateTime (2022, 1, 15, 18, 31, 0)),
-    //SatellitePass (DateTime (2022, 1, 15, 18, 38, 0), DateTime (2022, 1, 15, 18, 41, 0)),
-    //SatellitePass (DateTime (2022, 1, 15, 18, 59, 0), DateTime (2022, 1, 15, 19, 04, 0)),
-    //SatellitePass (DateTime (2022, 1, 15, 19, 50, 0), DateTime (2022, 1, 15, 19, 54, 0)),
-    //SatellitePass (DateTime (2022, 1, 15, 20, 41, 0), DateTime (2022, 1, 15, 20, 47, 0)),
-    //SatellitePass (DateTime (2022, 1, 15, 21, 04, 0), DateTime (2022, 1, 15, 21, 10, 0)),
-    //SatellitePass (DateTime (2022, 1, 15, 21, 29, 0), DateTime (2022, 1, 15, 21, 34, 0))
-    };
-  bool transmit = false;
-  for (int satellite = 0; satellite < sizeof(satellitePasses) / sizeof(SatellitePass); satellite++){    
-    if (satellitePasses[satellite].isInRange(rtc.now())) { transmit = true; }
-    }
-    transmit = true; // TODO Remove debug code
+  bool transmit = canTransmit();
+  transmit = true; // TODO Remove debug code
   if (transmit) {
     delay(500);
     kim.set_sleepMode(false);
@@ -145,6 +130,30 @@ void loop() {
 #endif  
 
   delay(delayTime); // Go to sleep  
+}
+
+bool canTransmit() {
+  bool transmit = false;
+  SatellitePass satellitePasses[] = {
+    //SatellitePass (DateTime (2022, 1, 15, 4, 42, 0), DateTime (2022, 1, 15, 4, 44, 0)),
+    //SatellitePass (DateTime (2022, 1, 15, 7, 27, 0), DateTime (2022, 1, 15, 7, 31, 0)),
+    //SatellitePass (DateTime (2022, 1, 15, 8, 50, 0), DateTime (2022, 1, 15, 8, 54, 0)),
+    //SatellitePass (DateTime (2022, 1, 15, 9, 07, 0), DateTime (2022, 1, 15, 9, 10, 0)),
+    //SatellitePass (DateTime (2022, 1, 15, 10, 00, 0), DateTime (2022, 1, 15, 10, 03, 0)),
+    //SatellitePass (DateTime (2022, 1, 15, 10, 53, 0), DateTime (2022, 1, 15, 10, 58, 0)),
+    //SatellitePass (DateTime (2022, 1, 15, 11, 12, 0), DateTime (2022, 1, 15, 11, 18, 0)),
+    SatellitePass (DateTime (2022, 1, 15, 18, 26, 0), DateTime (2022, 1, 15, 18, 31, 0)),
+    SatellitePass (DateTime (2022, 1, 15, 18, 38, 0), DateTime (2022, 1, 15, 18, 41, 0)),
+    SatellitePass (DateTime (2022, 1, 15, 18, 59, 0), DateTime (2022, 1, 15, 19, 04, 0)),
+    SatellitePass (DateTime (2022, 1, 15, 19, 50, 0), DateTime (2022, 1, 15, 19, 54, 0)),
+    SatellitePass (DateTime (2022, 1, 15, 20, 41, 0), DateTime (2022, 1, 15, 20, 47, 0)),
+    SatellitePass (DateTime (2022, 1, 15, 21, 04, 0), DateTime (2022, 1, 15, 21, 10, 0)),
+    SatellitePass (DateTime (2022, 1, 15, 21, 29, 0), DateTime (2022, 1, 15, 21, 34, 0))
+    };
+  for (int satellite = 0; satellite < sizeof(satellitePasses) / sizeof(SatellitePass); satellite++){    
+    if (satellitePasses[satellite].isInRange(rtc.now())) { transmit = true; }
+  }
+  return transmit;
 }
 
 String createSatelliteMessage(uint8_t day, uint8_t hour, uint8_t min, String userMessage) {
@@ -178,6 +187,7 @@ String createSatelliteMessage(uint8_t day, uint8_t hour, uint8_t min, String use
 
 void initialiseSdCard() {
 
+#ifdef SDCard
   Serial.println(F("Init SD Card"));
 
   // see if the card is present and can be initialized:
@@ -208,14 +218,15 @@ void initialiseSdCard() {
     // crystal oscillator time to stabilize. If you call adjust() very quickly
     // after the RTC is powered, lostPower() may still return true.
   }
-  rtc.start();  
+  rtc.start();
+#endif
 }
 
 void initialiseBme280() {
 #ifdef BME280
   Serial.println(F("Init BME280"));
   unsigned sensorStatus;
-  sensorStatus = bme.begin(0x76, &Wire); // Need to set specific address for the BME280 I used
+  sensorStatus = bme.begin(0x76, &Wire); // Need to set specific address for the BME280 used
   if (!sensorStatus) {
     Serial.println(F("Could not find a valid BME280 sensor, check wiring, address, sensor ID!"));
     Serial.print(F("SensorID was: 0x"));
@@ -245,7 +256,7 @@ void initialiseHardware() {
 void initialiseSatellite() {
 #ifdef Satellite
 
-  Serial.println(F("Example KIM1 Arduino shield"));
+  Serial.println(F("Init KIM1 shield"));
 
   if(kim.check()) {
           Serial.println(F("KIM -- Check success"));
