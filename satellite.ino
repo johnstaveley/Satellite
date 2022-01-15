@@ -47,21 +47,17 @@ Adafruit_BME280 bme;    // uses I2C
 #endif
 #define redLedPin 2
 #define greenLedPin 3
+#include "satellite_pass.h"
 
 //StackArray <char> stack;
 
 void setup() {
 
   initialiseHardware();
-
   initialiseSdCard();
-
   Wire.begin();
-
   initialiseBme280();
-
   initialiseSatellite();
-
   // TODO: Load PrepasRun.txt from file into PROGMEM memory see https://create.arduino.cc/projecthub/john-bradnam/reducing-your-memory-usage-26ca05  
   Serial.println(F("Init complete"));
 }
@@ -71,7 +67,7 @@ void loop() {
   digitalWrite(greenLedPin, HIGH);
   
   DateTime now = rtc.now();
-  // make a string for assembling the data to log:
+  // Assemble the data to send
   String dataString = "";
   dataString.reserve(30);
   #ifdef BME280
@@ -81,49 +77,70 @@ void loop() {
   dataString += "hPa;";
   dataString += bme.readHumidity();
   dataString += "%;";
+  #else
+  dataString = "Hello world!";
   #endif
 
   char buf[60];
-  sprintf(buf,"%02d/%02d/%04d %02d:%02d:%02d;%s", now.day(), now.month(), now.year(), now.hour(), now.minute(), now.second(), dataString.c_str());
+  sprintf(buf,"%04d%02d%02dT%02d%02d%02d%s", now.year(), now.month(), now.day(), now.hour(), now.minute(), now.second(), dataString.c_str());
 
-  // open the file. note that only one file can be open at a time
-  // so you have to close this one before opening another.
   String filename = "datalog" + String(fileCounter) + ".txt";
   File dataFile = SD.open(filename, FILE_WRITE);
-
-  // if the file is available, write to it:
   if (dataFile) {
     dataFile.println(buf);
     dataFile.close();
     // print to the serial port too:
     Serial.println(buf);
+  } else {
+    Serial.println(F("Error opening SD card"));
   }
-  // if the file isn't open, pop up an error:
-  else {
-    Serial.println(F("Error opening datalog.txt"));
-  }  
 
   delay(1000);
   digitalWrite(greenLedPin, LOW);
 
-  // TODO: Work out if it is time to transmit or not
 #ifdef Satellite
-  bool transmit = true;
+  // Work out if it is time to transmit or not
+  SatellitePass satellitePasses[] = {
+    //SatellitePass (DateTime (2022, 1, 15, 4, 42, 0), DateTime (2022, 1, 15, 4, 44, 0)),
+    //SatellitePass (DateTime (2022, 1, 15, 7, 27, 0), DateTime (2022, 1, 15, 7, 31, 0)),
+    //SatellitePass (DateTime (2022, 1, 15, 8, 50, 0), DateTime (2022, 1, 15, 8, 54, 0)),
+   // SatellitePass (DateTime (2022, 1, 15, 9, 07, 0), DateTime (2022, 1, 15, 9, 10, 0)),
+  //  SatellitePass (DateTime (2022, 1, 15, 10, 00, 0), DateTime (2022, 1, 15, 10, 03, 0)),
+    //SatellitePass (DateTime (2022, 1, 15, 10, 53, 0), DateTime (2022, 1, 15, 10, 58, 0)),
+    SatellitePass (DateTime (2022, 1, 15, 11, 12, 0), DateTime (2022, 1, 15, 11, 18, 0)),
+    //SatellitePass (DateTime (2022, 1, 15, 18, 26, 0), DateTime (2022, 1, 15, 18, 31, 0)),
+    //SatellitePass (DateTime (2022, 1, 15, 18, 38, 0), DateTime (2022, 1, 15, 18, 41, 0)),
+    //SatellitePass (DateTime (2022, 1, 15, 18, 59, 0), DateTime (2022, 1, 15, 19, 04, 0)),
+    //SatellitePass (DateTime (2022, 1, 15, 19, 50, 0), DateTime (2022, 1, 15, 19, 54, 0)),
+    //SatellitePass (DateTime (2022, 1, 15, 20, 41, 0), DateTime (2022, 1, 15, 20, 47, 0)),
+    //SatellitePass (DateTime (2022, 1, 15, 21, 04, 0), DateTime (2022, 1, 15, 21, 10, 0)),
+    //SatellitePass (DateTime (2022, 1, 15, 21, 29, 0), DateTime (2022, 1, 15, 21, 34, 0))
+    };
+  bool transmit = false;
+  for (int satellite = 0; satellite < sizeof(satellitePasses) / sizeof(SatellitePass); satellite++){    
+    if (satellitePasses[satellite].isInRange(rtc.now())) { transmit = true; }
+    }
+    transmit = true; // TODO Remove debug code
   if (transmit) {
+    delay(500);
     kim.set_sleepMode(false);
     digitalWrite(redLedPin, HIGH);
-    String message = createSatelliteMessage(now.hour(), now.minute(), now.second(), "Hello world");
-    char messageConverted[62];
-    message.toCharArray(messageConverted, message.length());
+    String payload = String(dataString);
+    if (payload.length() > 20) {
+      payload = payload.substring(0, 19);
+    }
+    String dataPacket = createSatelliteMessage(now.day(), now.hour(), now.minute(), payload);
+    char dataPacketConverted[62];
+    dataPacket.toCharArray(dataPacketConverted, dataPacket.length());
     Serial.print(F("KIM -- Send data ... "));
-    if(kim.send_data(messageConverted, sizeof(messageConverted)-1) == OK_KIM){
+    if(kim.send_data(dataPacketConverted, sizeof(dataPacketConverted)-1) == OK_KIM){
             Serial.println(F("Message sent"));
     } else {
             Serial.println(F("Error"));
     }
     Serial.println(F("KIM -- Turn OFF"));
     digitalWrite(redLedPin, LOW);
-    kim.set_sleepMode(true);    
+    kim.set_sleepMode(true);
   }
 #endif  
 
@@ -132,7 +149,7 @@ void loop() {
 
 String createSatelliteMessage(uint8_t day, uint8_t hour, uint8_t min, String userMessage) {
   ArgosMsgTypeDef_t message;
-  int i;
+  int counter;
   uint32_t lon  = 450000; // TODO Replace this with real coordinates
   uint32_t lat  = 25000;
   uint32_t alt  = 65;
@@ -149,14 +166,14 @@ String createSatelliteMessage(uint8_t day, uint8_t hour, uint8_t min, String use
 
   Serial.println(F("Satellite message:"));
   char buf[3];
-  String dataString = "";
-  for (i = 0; i < ARGOS_FRAME_LENGTH; i++) {
-    sprintf(buf, "%02x", message.payload[i]); //%02d
-    dataString += buf;
+  String dataPacketString = "";
+  for (counter = 0; counter < ARGOS_FRAME_LENGTH; counter++) {
+    sprintf(buf, "%02x", message.payload[counter]);
+    dataPacketString += buf;
   }
-  dataString.toUpperCase();
-  Serial.println(dataString);
-  return dataString;
+  dataPacketString.toUpperCase();
+  Serial.println(dataPacketString);
+  return dataPacketString;
 }
 
 void initialiseSdCard() {
@@ -191,9 +208,7 @@ void initialiseSdCard() {
     // crystal oscillator time to stabilize. If you call adjust() very quickly
     // after the RTC is powered, lostPower() may still return true.
   }
-
-  rtc.start();
-  
+  rtc.start();  
 }
 
 void initialiseBme280() {
@@ -214,11 +229,10 @@ void initialiseBme280() {
  #endif
 }
 
-void initialiseHardware() {
-  
+void initialiseHardware() {  
   pinMode(redLedPin, OUTPUT); 
   digitalWrite(redLedPin, LOW);
-  pinMode(greenLedPin, OUTPUT); 
+  pinMode(greenLedPin, OUTPUT);
   digitalWrite(greenLedPin, LOW);
   
   // Open serial communications and wait for port to open:
@@ -226,7 +240,6 @@ void initialiseHardware() {
   while (!Serial) {
     delay(10); // wait for serial port to connect. Needed for native USB port only
   }
-
 }
 
 void initialiseSatellite() {
