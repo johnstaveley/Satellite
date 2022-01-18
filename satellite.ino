@@ -4,7 +4,6 @@
 
 // Compilation flags
 #define Satellite
-#define SDCard
 
 // Required for data logger and real time clock
 #include <SPI.h>
@@ -29,11 +28,11 @@ const char BAND[] = "B1";
 const char FRQ[] = "300";
 const char PWR[] = "750";
 const char TCXOWU[] = "5000";
-#if defined(__AVR_ATmega4809__)  // Arduino UNO Wifi Rev2
-HardwareSerial &kserial = Serial1;
-#else // Arduino UNO and Wemos D1
-SoftwareSerial kserial(RX_KIM, TX_KIM);
-#endif
+  #if defined(__AVR_ATmega4809__)  // Arduino UNO Wifi Rev2
+  HardwareSerial &kserial = Serial1;
+  #else // Arduino UNO and Wemos D1
+  SoftwareSerial kserial(RX_KIM, TX_KIM);
+  #endif
 KIM kim(&kserial);
 #endif
 #include "satellite_pass.h"
@@ -60,12 +59,13 @@ void loop() {
   digitalWrite(greenLedPin, HIGH);
 
   DateTime now = rtc.now();
+  
   // Assemble the data to send
-  int readAnalogueValue = analogRead(temperaturePin);
-  double temperature =  Thermistor(readAnalogueValue);
+  int analogueValue = analogRead(temperaturePin);
+  double temperature = getTemperatureFromThermistor(analogueValue);
    
   String dataString = "";
-  dataString.reserve(30);
+  dataString.reserve(10);
   dataString += "|";
   dataString += temperature;
   dataString += "°C;";
@@ -90,7 +90,7 @@ void loop() {
 #ifdef Satellite
   // Work out if it is time to transmit or not
   bool transmit = canTransmit();
-  //transmit = true; // TODO Remove debug code
+  //transmit = true; // Debug code
   if (transmit) {
     delay(500);
     kim.set_sleepMode(false);
@@ -102,6 +102,9 @@ void loop() {
     String dataPacket = createSatelliteMessage(now.day(), now.hour(), now.minute(), payload);
     char dataPacketConverted[62];
     dataPacket.toCharArray(dataPacketConverted, dataPacket.length());
+    if (dataFile) {
+      dataFile.println(dataPacket);
+    }
     Serial.print(F("KIM -- Send data ... "));
     if (kim.send_data(dataPacketConverted, sizeof(dataPacketConverted) - 1) == OK_KIM) {
       Serial.println(F("Message sent"));
@@ -114,16 +117,20 @@ void loop() {
   }
 #endif
 
+  if (dataFile) {
+    dataFile.close();
+  }
+
   delay(delayTime); // Go to sleep
 }
 
 bool canTransmit() {
   bool transmit = false;
   SatellitePass satellitePasses[] = {
-    SatellitePass (DateTime (2022, 1, 18, 10, 17, 0), DateTime (2022, 1, 18, 10, 25, 0)),
-    SatellitePass (DateTime (2022, 1, 18, 10, 24, 0), DateTime (2022, 1, 18, 10, 30, 0)),
-    SatellitePass (DateTime (2022, 1, 18, 11, 10, 0), DateTime (2022, 1, 18, 11, 15, 0)),
-    SatellitePass (DateTime (2022, 1, 18, 12, 06, 0), DateTime (2022, 1, 18, 12, 10, 0))
+    SatellitePass (DateTime (2022, 1, 18, 18, 1, 0), DateTime (2022, 1, 18, 18, 8, 0)),
+    SatellitePass (DateTime (2022, 1, 18, 18, 11, 0), DateTime (2022, 1, 18, 18, 19, 0)),
+    SatellitePass (DateTime (2022, 1, 18, 18, 36, 0), DateTime (2022, 1, 18, 18, 43, 0)),
+    SatellitePass (DateTime (2022, 1, 18, 19, 20, 0), DateTime (2022, 1, 18, 19, 24, 0))
   };
   for (int satellite = 0; satellite < sizeof(satellitePasses) / sizeof(SatellitePass); satellite++) {
     if (satellitePasses[satellite].isInRange(rtc.now())) {
@@ -164,7 +171,6 @@ String createSatelliteMessage(uint8_t day, uint8_t hour, uint8_t min, String use
 
 void initialiseSdCard() {
 
-#ifdef SDCard
   Serial.println(F("Init SD Card"));
 
   // see if the card is present and can be initialized:
@@ -196,7 +202,12 @@ void initialiseSdCard() {
     // after the RTC is powered, lostPower() may still return true.
   }
   rtc.start();
-#endif
+
+  DateTime now = rtc.now();  
+  char buf[60];
+  sprintf(buf, "Current time is %02d/%02d/%04d %02d:%02d:%02d", now.day(), now.month(), now.year(), now.hour(), now.minute(), now.second());
+  Serial.println(buf);
+  
 }
 
 void initialiseHardware() {
@@ -255,7 +266,7 @@ void initialiseSatellite() {
 
 }
 
-double Thermistor(int rawADC) {
+double getTemperatureFromThermistor(int rawADC) {
   double temperature;
   temperature = log(10000.0*((1024.0/rawADC-1))); 
   temperature = 1 / (0.001129148 + (0.000234125 + (0.0000000876741 * temperature * temperature ))* temperature );
