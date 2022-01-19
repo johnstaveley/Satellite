@@ -28,28 +28,29 @@ const char BAND[] = "B1";
 const char FRQ[] = "300";
 const char PWR[] = "750";
 const char TCXOWU[] = "5000";
-  #if defined(__AVR_ATmega4809__)  // Arduino UNO Wifi Rev2
-  HardwareSerial &kserial = Serial1;
-  #else // Arduino UNO and Wemos D1
-  SoftwareSerial kserial(RX_KIM, TX_KIM);
-  #endif
+#if defined(__AVR_ATmega4809__)  // Arduino UNO Wifi Rev2
+HardwareSerial &kserial = Serial1;
+#else // Arduino UNO and Wemos D1
+SoftwareSerial kserial(RX_KIM, TX_KIM);
+#endif
 KIM kim(&kserial);
 #endif
 #include "satellite_pass.h"
 
 // General
-#define delayTime 59000 // 1 minute minus 1 second to display status LED
+#define delayTime 60000 // 1 minute
 #define redLedPin 2
 #define greenLedPin 3
 #define temperaturePin A0
 
 #include <QueueList.h>
 QueueList <String> queue;
+int counter;
 
 void setup() {
-
   // set the printer of the stack.
   queue.setPrinter (Serial);
+  counter = 0;
   initialiseHardware();
   initialiseSdCard();
   initialiseSatellite();
@@ -59,45 +60,42 @@ void setup() {
 
 void loop() {
 
-  digitalWrite(greenLedPin, HIGH);
-
   DateTime now = rtc.now();
-  
-  // Assemble the data to send
-  int analogueValue = analogRead(temperaturePin);
-  double temperature = getTemperatureFromThermistor(analogueValue);
-   
-  String dataString = "";
-  dataString.reserve(10);
-  dataString += temperature;
-  dataString += "°C;";
-
-  char logEntry[60];
-  sprintf(logEntry, "%02d/%02d/%04d %02d:%02d:%02d %s", now.day(), now.month(), now.year(), now.hour(), now.minute(), now.second(), dataString.c_str());
-
   String filename = "datalog" + String(fileCounter) + ".txt";
-  File dataFile = SD.open(filename, FILE_WRITE);
-  if (dataFile) {
-    dataFile.println(logEntry);
-    // print to the serial port too:
-    Serial.println(logEntry);
-  } else {
-    Serial.println(F("Error opening SD card"));
-  }
+  int readingIntervalMinutes = 5;
+  if (counter == readingIntervalMinutes) {
+    digitalWrite(greenLedPin, HIGH);
+    counter = 0;
+    // Assemble the data to send
+    int analogValue = analogRead(temperaturePin);
+    double temperature = getTemperatureFromThermistor(analogValue);
 
-  if (dataString.length() > 20) {
-    dataString = dataString.substring(0, 19);
+    String dataString = "";
+    dataString.reserve(10);
+    dataString += temperature;
+    dataString += "C;";
+
+    char logEntry[60];
+    sprintf(logEntry, "%02d/%02d/%04d %02d:%02d:%02d %s", now.day(), now.month(), now.year(), now.hour(), now.minute(), now.second(), dataString.c_str());
+
+    if (dataString.length() > 20) {
+      dataString = dataString.substring(0, 19);
+    }
+    String dataPacket = createSatelliteMessage(now.day(), now.hour(), now.minute(), dataString);
+    queue.push(dataPacket);
+    Serial.println("Number of entries in stack: " + String(queue.count()));
+    File dataFile = SD.open(filename, FILE_WRITE);
+    if (dataFile) {
+      dataFile.println(dataPacket);
+      dataFile.close();
+      Serial.println(logEntry);
+    } else {
+      Serial.println(F("Error opening SD card"));
+    }
+    digitalWrite(greenLedPin, LOW);
   }
-  String dataPacket = createSatelliteMessage(now.day(), now.hour(), now.minute(), dataString);
-  queue.push(dataPacket);
-  Serial.println("Number of entries in stack: " + String(queue.count()));
-  if (dataFile) {
-    dataFile.println(dataPacket);
-  }
-  digitalWrite(greenLedPin, LOW);
 
 #ifdef Satellite
-  // Work out if it is time to transmit or not
   bool transmit = canTransmit();
   //transmit = true; // Debug code
   if (transmit && !queue.isEmpty()) {
@@ -106,8 +104,8 @@ void loop() {
     Serial.println(F("KIM -- Send data ... "));
     while (!queue.isEmpty ()) {
       char dataPacketConverted[62];
-      dataPacket = queue.pop();
-      dataPacket.toCharArray(dataPacketConverted, dataPacket.length());      
+      String dataPacketToSend = queue.pop();
+      dataPacketToSend.toCharArray(dataPacketConverted, dataPacketToSend.length());
       Serial.println(dataPacketConverted);
       if (kim.send_data(dataPacketConverted, sizeof(dataPacketConverted) - 1) == OK_KIM) {
         Serial.println(F("Message sent"));
@@ -123,21 +121,23 @@ void loop() {
   }
 #endif
 
-  if (dataFile) {
-    dataFile.close();
-  }
-
+  counter++;
   delay(delayTime); // Go to sleep
 }
 
 bool canTransmit() {
   bool transmit = false;
   SatellitePass satellitePasses[] = {
-    SatellitePass (DateTime (2022, 1, 19, 5, 20, 0), DateTime (2022, 1, 19, 5, 23, 0)),
     SatellitePass (DateTime (2022, 1, 19, 5, 24, 0), DateTime (2022, 1, 19, 5, 32, 0)),
     SatellitePass (DateTime (2022, 1, 19, 8, 6, 50), DateTime (2022, 1, 19, 8, 14, 33)),
     SatellitePass (DateTime (2022, 1, 19, 8, 24, 0), DateTime (2022, 1, 19, 8, 31, 0)),
     SatellitePass (DateTime (2022, 1, 19, 9, 9, 0), DateTime (2022, 1, 19, 9, 14, 0)),
+    SatellitePass (DateTime (2022, 1, 19, 9, 48, 0), DateTime (2022, 1, 19, 9, 53, 0)),
+    SatellitePass (DateTime (2022, 1, 19, 9, 56, 0), DateTime (2022, 1, 19, 10, 3, 0)),
+    SatellitePass (DateTime (2022, 1, 19, 10, 11, 0), DateTime (2022, 1, 19, 10, 19, 0)),
+    SatellitePass (DateTime (2022, 1, 19, 10, 48, 0), DateTime (2022, 1, 19, 10, 56, 0)),
+    SatellitePass (DateTime (2022, 1, 19, 11, 36, 0), DateTime (2022, 1, 19, 11, 42, 0)),
+    SatellitePass (DateTime (2022, 1, 19, 11, 52, 0), DateTime (2022, 1, 19, 11, 59, 0)),
   };
   for (int satellite = 0; satellite < sizeof(satellitePasses) / sizeof(SatellitePass); satellite++) {
     if (satellitePasses[satellite].isInRange(rtc.now())) {
@@ -210,11 +210,11 @@ void initialiseSdCard() {
   }
   rtc.start();
 
-  DateTime now = rtc.now();  
+  DateTime now = rtc.now();
   char buf[60];
   sprintf(buf, "Current time is %02d/%02d/%04d %02d:%02d:%02d", now.day(), now.month(), now.year(), now.hour(), now.minute(), now.second());
   Serial.println(buf);
-  
+
 }
 
 void initialiseHardware() {
@@ -275,8 +275,8 @@ void initialiseSatellite() {
 
 double getTemperatureFromThermistor(int rawADC) {
   double temperature;
-  temperature = log(10000.0*((1024.0/rawADC-1))); 
-  temperature = 1 / (0.001129148 + (0.000234125 + (0.0000000876741 * temperature * temperature ))* temperature );
+  temperature = log(10000.0 * ((1024.0 / rawADC - 1)));
+  temperature = 1 / (0.001129148 + (0.000234125 + (0.0000000876741 * temperature * temperature )) * temperature );
   temperature = temperature - 273.15;            // Convert Kelvin to Celcius
   return temperature;
 }
