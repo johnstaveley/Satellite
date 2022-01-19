@@ -1,6 +1,6 @@
 # INTRODUCTION
 
-This demo project is used to take temperature data, store it to a SD card and later send it onto a data centre when a satellite is within range. Written in Arduino C++
+This demo project is used to take temperature data, store it to a SD card and later send it onto a data centre when a satellite is within range. Written in Arduino C++ and deployed to an Arduino Uno Wifi v2.
 A read time clock is used on the data logging board to keep time.
 
 Created 03/01/2022 by John Staveley for IoTNorth

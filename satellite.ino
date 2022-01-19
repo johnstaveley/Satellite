@@ -62,7 +62,7 @@ void loop() {
 
   DateTime now = rtc.now();
   String filename = "datalog" + String(fileCounter) + ".txt";
-  int readingIntervalMinutes = 5;
+  int readingIntervalMinutes = 10;
   if (counter == readingIntervalMinutes) {
     digitalWrite(greenLedPin, HIGH);
     counter = 0;
@@ -97,12 +97,11 @@ void loop() {
 
 #ifdef Satellite
   bool transmit = canTransmit();
-  //transmit = true; // Debug code
   if (transmit && !queue.isEmpty()) {
-    kim.set_sleepMode(false);
-    digitalWrite(redLedPin, HIGH);
-    Serial.println(F("KIM -- Send data ... "));
-    while (!queue.isEmpty ()) {
+    while (!queue.isEmpty() && canTransmit()) {
+      kim.set_sleepMode(false);
+      digitalWrite(redLedPin, HIGH);
+      Serial.println(F("KIM -- Send data ... "));
       char dataPacketConverted[62];
       String dataPacketToSend = queue.pop();
       dataPacketToSend.toCharArray(dataPacketConverted, dataPacketToSend.length());
@@ -113,7 +112,6 @@ void loop() {
         Serial.println(F("Error"));
       }
       delay(750);
-      // TODO: If there are lots of messages to transmit and the pass is short we may need to bail here if transmission is taking too long
     }
     Serial.println(F("KIM -- Turn OFF"));
     digitalWrite(redLedPin, LOW);
@@ -138,6 +136,10 @@ bool canTransmit() {
     SatellitePass (DateTime (2022, 1, 19, 10, 48, 0), DateTime (2022, 1, 19, 10, 56, 0)),
     SatellitePass (DateTime (2022, 1, 19, 11, 36, 0), DateTime (2022, 1, 19, 11, 42, 0)),
     SatellitePass (DateTime (2022, 1, 19, 11, 52, 0), DateTime (2022, 1, 19, 11, 59, 0)),
+    SatellitePass (DateTime (2022, 1, 19, 17, 31, 0), DateTime (2022, 1, 19, 17, 35, 0)),
+    SatellitePass (DateTime (2022, 1, 19, 17, 59, 0), DateTime (2022, 1, 19, 18, 7, 0)),
+    SatellitePass (DateTime (2022, 1, 19, 18, 11, 0), DateTime (2022, 1, 19, 18, 18, 0)),
+    SatellitePass (DateTime (2022, 1, 19, 19, 7, 0), DateTime (2022, 1, 19, 19, 16, 0)),
   };
   for (int satellite = 0; satellite < sizeof(satellitePasses) / sizeof(SatellitePass); satellite++) {
     if (satellitePasses[satellite].isInRange(rtc.now())) {
