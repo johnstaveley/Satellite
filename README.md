@@ -13,7 +13,7 @@ The Arduino IDE was used to develop this code and upload it to a board. When the
 # HARDWARE SETUP
 In order to follow this demo project, you need the following hardware configured thus:
 
-- USB 2 socket (provides sufficient power for Kineis board). Not USB1
+- USB 2 socket (provides sufficient power for Kineis board). Not USB1. Or battery capable of delivering 1Amp
 - 1x Arduino Uno WiFi v2
 - 1x Adafruit Assembled Data Logging shield for Arduino attached to SPI bus as follows:
 	- MOSI - pin 11

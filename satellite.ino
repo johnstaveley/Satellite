@@ -115,6 +115,7 @@ void loop() {
         Serial.println(F("Error"));
       }
       delay(750);
+      // TODO: If there are lots of messages to transmit and the pass is short we may need to bail here if transmission is taking too long
     }
     Serial.println(F("KIM -- Turn OFF"));
     digitalWrite(redLedPin, LOW);
