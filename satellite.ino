@@ -43,10 +43,13 @@ KIM kim(&kserial);
 #define greenLedPin 3
 #define temperaturePin A0
 
-//StackArray <char> stack;
+#include <QueueList.h>
+QueueList <String> queue;
 
 void setup() {
 
+  // set the printer of the stack.
+  queue.setPrinter (Serial);
   initialiseHardware();
   initialiseSdCard();
   initialiseSatellite();
@@ -66,50 +69,52 @@ void loop() {
    
   String dataString = "";
   dataString.reserve(10);
-  dataString += "|";
   dataString += temperature;
   dataString += "°C;";
 
-  char buf[60];
-  sprintf(buf, "%04d%02d%02dT%02d%02d%02d%s", now.year(), now.month(), now.day(), now.hour(), now.minute(), now.second(), dataString.c_str());
+  char logEntry[60];
+  sprintf(logEntry, "%02d/%02d/%04d %02d:%02d:%02d %s", now.day(), now.month(), now.year(), now.hour(), now.minute(), now.second(), dataString.c_str());
 
   String filename = "datalog" + String(fileCounter) + ".txt";
   File dataFile = SD.open(filename, FILE_WRITE);
   if (dataFile) {
-    dataFile.println(buf);
-    dataFile.close();
+    dataFile.println(logEntry);
     // print to the serial port too:
-    Serial.println(buf);
+    Serial.println(logEntry);
   } else {
     Serial.println(F("Error opening SD card"));
   }
 
-  delay(1000);
+  if (dataString.length() > 20) {
+    dataString = dataString.substring(0, 19);
+  }
+  String dataPacket = createSatelliteMessage(now.day(), now.hour(), now.minute(), dataString);
+  queue.push(dataPacket);
+  Serial.println("Number of entries in stack: " + String(queue.count()));
+  if (dataFile) {
+    dataFile.println(dataPacket);
+  }
   digitalWrite(greenLedPin, LOW);
 
 #ifdef Satellite
   // Work out if it is time to transmit or not
   bool transmit = canTransmit();
   //transmit = true; // Debug code
-  if (transmit) {
-    delay(500);
+  if (transmit && !queue.isEmpty()) {
     kim.set_sleepMode(false);
     digitalWrite(redLedPin, HIGH);
-    String payload = String(dataString);
-    if (payload.length() > 20) {
-      payload = payload.substring(0, 19);
-    }
-    String dataPacket = createSatelliteMessage(now.day(), now.hour(), now.minute(), payload);
-    char dataPacketConverted[62];
-    dataPacket.toCharArray(dataPacketConverted, dataPacket.length());
-    if (dataFile) {
-      dataFile.println(dataPacket);
-    }
-    Serial.print(F("KIM -- Send data ... "));
-    if (kim.send_data(dataPacketConverted, sizeof(dataPacketConverted) - 1) == OK_KIM) {
-      Serial.println(F("Message sent"));
-    } else {
-      Serial.println(F("Error"));
+    Serial.println(F("KIM -- Send data ... "));
+    while (!queue.isEmpty ()) {
+      char dataPacketConverted[62];
+      dataPacket = queue.pop();
+      dataPacket.toCharArray(dataPacketConverted, dataPacket.length());      
+      Serial.println(dataPacketConverted);
+      if (kim.send_data(dataPacketConverted, sizeof(dataPacketConverted) - 1) == OK_KIM) {
+        Serial.println(F("Message sent"));
+      } else {
+        Serial.println(F("Error"));
+      }
+      delay(750);
     }
     Serial.println(F("KIM -- Turn OFF"));
     digitalWrite(redLedPin, LOW);
@@ -127,10 +132,11 @@ void loop() {
 bool canTransmit() {
   bool transmit = false;
   SatellitePass satellitePasses[] = {
-    SatellitePass (DateTime (2022, 1, 18, 18, 1, 0), DateTime (2022, 1, 18, 18, 8, 0)),
-    SatellitePass (DateTime (2022, 1, 18, 18, 11, 0), DateTime (2022, 1, 18, 18, 19, 0)),
-    SatellitePass (DateTime (2022, 1, 18, 18, 36, 0), DateTime (2022, 1, 18, 18, 43, 0)),
-    SatellitePass (DateTime (2022, 1, 18, 19, 20, 0), DateTime (2022, 1, 18, 19, 24, 0))
+    SatellitePass (DateTime (2022, 1, 19, 5, 20, 0), DateTime (2022, 1, 19, 5, 23, 0)),
+    SatellitePass (DateTime (2022, 1, 19, 5, 24, 0), DateTime (2022, 1, 19, 5, 32, 0)),
+    SatellitePass (DateTime (2022, 1, 19, 8, 6, 50), DateTime (2022, 1, 19, 8, 14, 33)),
+    SatellitePass (DateTime (2022, 1, 19, 8, 24, 0), DateTime (2022, 1, 19, 8, 31, 0)),
+    SatellitePass (DateTime (2022, 1, 19, 9, 9, 0), DateTime (2022, 1, 19, 9, 14, 0)),
   };
   for (int satellite = 0; satellite < sizeof(satellitePasses) / sizeof(SatellitePass); satellite++) {
     if (satellitePasses[satellite].isInRange(rtc.now())) {
@@ -157,7 +163,7 @@ String createSatelliteMessage(uint8_t day, uint8_t hour, uint8_t min, String use
   u16MSGKINEIS_STDV1_setUserData(&message, userdata, 20, POSITION_STD_USER_DATA);
   vMSGKINEIS_STDV1_setCRC16andBCH32(&message, POSITION_STD_BCH32);
 
-  Serial.println(F("Satellite message:"));
+  //Serial.println(F("Satellite message:"));
   char buf[3];
   String dataPacketString = "";
   for (counter = 0; counter < ARGOS_FRAME_LENGTH; counter++) {

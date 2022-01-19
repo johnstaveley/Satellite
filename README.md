@@ -13,15 +13,15 @@ The Arduino IDE was used to develop this code and upload it to a board. When the
 # HARDWARE SETUP
 In order to follow this demo project, you need the following hardware configured thus:
 
-- USB 3 socket (provides sufficient power for Kineis board)
-- 1x Arduino Uno v3 
+- USB 2 socket (provides sufficient power for Kineis board). Not USB1
+- 1x Arduino Uno WiFi v2
 - 1x Adafruit Assembled Data Logging shield for Arduino attached to SPI bus as follows:
 	- MOSI - pin 11
 	- MISO - pin 12
 	- CLK - pin 13
 	- CS - pin 4
 - 1x SD card for the above
-- 1x CR1220 coin battery for Real Time Clock
+- 1x CR1220 coin battery for Real Time Clock on data logging shield
 - 1x HW-498 Temperature sensor
     - +ve pin to %v
 	- -ve pin to ground
@@ -31,7 +31,8 @@ In order to follow this demo project, you need the following hardware configured
 	- 1x Green LED attached to pin 6
 	- -ve connected to ground
 - 1x Kineis shield v2
-	- Jumpers 1,2,3,7 set to Arduino
+	- Jumpers 1,7 set to Arduino
+	- Jumpers 2, 3 set to STM32
 
 Data Logger: https://thepihut.com/products/adafruit-assembled-data-logging-shield-for-arduino?variant=27739231185
 
@@ -39,5 +40,5 @@ Data Logger: https://thepihut.com/products/adafruit-assembled-data-logging-shiel
 
 # KNOWN ISSUES
 
-- Sometimes the RTC loses power and resets to the script time. This will cause the data to not be sent at the correct time. A redeploy will solve this. 
+- Sometimes the RTC loses power and resets to the script time. This will cause the data to not be sent at the correct time. A redeploy will (usually) solve this.
 
