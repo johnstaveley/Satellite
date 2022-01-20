@@ -38,19 +38,21 @@ KIM kim(&kserial);
 #include "satellite_pass.h"
 
 // General
-#define delayTime 60000 // 1 minute
+#define delayTime 58000 // 1 minute between messages allowing for processing
 #define redLedPin 2
 #define greenLedPin 3
 #define temperaturePin A0
 
 #include <QueueList.h>
 QueueList <String> queue;
-int counter;
+int minutesSinceLastReading;
+int messageCounter;
 
 void setup() {
   // set the printer of the stack.
   queue.setPrinter (Serial);
-  counter = 0;
+  minutesSinceLastReading = 0;
+  messageCounter = 1;
   initialiseHardware();
   initialiseSdCard();
   initialiseSatellite();
@@ -62,21 +64,25 @@ void loop() {
 
   DateTime now = rtc.now();
   String filename = "datalog" + String(fileCounter) + ".txt";
-  int readingIntervalMinutes = 10;
-  if (counter == readingIntervalMinutes) {
+  int readingIntervalMinutes = 2;
+  if (minutesSinceLastReading == readingIntervalMinutes) {
     digitalWrite(greenLedPin, HIGH);
-    counter = 0;
+    minutesSinceLastReading = 0;
     // Assemble the data to send
     int analogValue = analogRead(temperaturePin);
     double temperature = getTemperatureFromThermistor(analogValue);
 
     String dataString = "";
     dataString.reserve(10);
+    dataString += "|";
+    dataString += messageCounter;
+    dataString += "|";
     dataString += temperature;
     dataString += "C;";
+    messageCounter++;
 
     char logEntry[60];
-    sprintf(logEntry, "%02d/%02d/%04d %02d:%02d:%02d %s", now.day(), now.month(), now.year(), now.hour(), now.minute(), now.second(), dataString.c_str());
+    sprintf(logEntry, "%02d/%02d/%04d %02d:%02d:%02d%s", now.day(), now.month(), now.year(), now.hour(), now.minute(), now.second(), dataString.c_str());
 
     if (dataString.length() > 20) {
       dataString = dataString.substring(0, 19);
@@ -86,6 +92,7 @@ void loop() {
     Serial.println("Number of entries in stack: " + String(queue.count()));
     File dataFile = SD.open(filename, FILE_WRITE);
     if (dataFile) {
+      dataFile.println(logEntry);
       dataFile.println(dataPacket);
       dataFile.close();
       Serial.println(logEntry);
@@ -96,50 +103,46 @@ void loop() {
   }
 
 #ifdef Satellite
-  bool transmit = canTransmit();
-  if (transmit && !queue.isEmpty()) {
+  if (!queue.isEmpty() && canTransmit()) {
+    File dataFile2 = SD.open(filename, FILE_WRITE);
+    Serial.println(F("KIM -- Sending data ... "));
     while (!queue.isEmpty() && canTransmit()) {
+      delay(750);
       kim.set_sleepMode(false);
       digitalWrite(redLedPin, HIGH);
-      Serial.println(F("KIM -- Send data ... "));
       char dataPacketConverted[62];
       String dataPacketToSend = queue.pop();
       dataPacketToSend.toCharArray(dataPacketConverted, dataPacketToSend.length());
-      Serial.println(dataPacketConverted);
+      now = rtc.now();
+      char logEntry2[200];
+      sprintf(logEntry2, "Sending: %02d/%02d/%04d %02d:%02d:%02d %s", now.day(), now.month(), now.year(), now.hour(), now.minute(), now.second(), dataPacketToSend.c_str());
+      if (dataFile2) {
+        dataFile2.println(logEntry2);
+      }      
+      Serial.println(logEntry2);
       if (kim.send_data(dataPacketConverted, sizeof(dataPacketConverted) - 1) == OK_KIM) {
         Serial.println(F("Message sent"));
       } else {
         Serial.println(F("Error"));
       }
-      delay(750);
     }
     Serial.println(F("KIM -- Turn OFF"));
+    dataFile2.close();
     digitalWrite(redLedPin, LOW);
     kim.set_sleepMode(true);
   }
 #endif
 
-  counter++;
+  minutesSinceLastReading++;
   delay(delayTime); // Go to sleep
 }
 
 bool canTransmit() {
   bool transmit = false;
   SatellitePass satellitePasses[] = {
-    SatellitePass (DateTime (2022, 1, 19, 5, 24, 0), DateTime (2022, 1, 19, 5, 32, 0)),
-    SatellitePass (DateTime (2022, 1, 19, 8, 6, 50), DateTime (2022, 1, 19, 8, 14, 33)),
-    SatellitePass (DateTime (2022, 1, 19, 8, 24, 0), DateTime (2022, 1, 19, 8, 31, 0)),
-    SatellitePass (DateTime (2022, 1, 19, 9, 9, 0), DateTime (2022, 1, 19, 9, 14, 0)),
-    SatellitePass (DateTime (2022, 1, 19, 9, 48, 0), DateTime (2022, 1, 19, 9, 53, 0)),
-    SatellitePass (DateTime (2022, 1, 19, 9, 56, 0), DateTime (2022, 1, 19, 10, 3, 0)),
-    SatellitePass (DateTime (2022, 1, 19, 10, 11, 0), DateTime (2022, 1, 19, 10, 19, 0)),
-    SatellitePass (DateTime (2022, 1, 19, 10, 48, 0), DateTime (2022, 1, 19, 10, 56, 0)),
-    SatellitePass (DateTime (2022, 1, 19, 11, 36, 0), DateTime (2022, 1, 19, 11, 42, 0)),
-    SatellitePass (DateTime (2022, 1, 19, 11, 52, 0), DateTime (2022, 1, 19, 11, 59, 0)),
-    SatellitePass (DateTime (2022, 1, 19, 17, 31, 0), DateTime (2022, 1, 19, 17, 35, 0)),
-    SatellitePass (DateTime (2022, 1, 19, 17, 59, 0), DateTime (2022, 1, 19, 18, 7, 0)),
-    SatellitePass (DateTime (2022, 1, 19, 18, 11, 0), DateTime (2022, 1, 19, 18, 18, 0)),
-    SatellitePass (DateTime (2022, 1, 19, 19, 7, 0), DateTime (2022, 1, 19, 19, 16, 0)),
+    SatellitePass (DateTime (2022, 1, 20, 17, 47, 0), DateTime (2022, 1, 20, 17, 53, 0)),
+    SatellitePass (DateTime (2022, 1, 20, 18, 39, 0), DateTime (2022, 1, 20, 18, 44, 0)),
+    SatellitePass (DateTime (2022, 1, 20, 19, 27, 0), DateTime (2022, 1, 20, 19, 34, 0))
   };
   for (int satellite = 0; satellite < sizeof(satellitePasses) / sizeof(SatellitePass); satellite++) {
     if (satellitePasses[satellite].isInRange(rtc.now())) {

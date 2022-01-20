@@ -32,7 +32,7 @@ In order to follow this demo project, you need the following hardware configured
 	- -ve connected to ground
 - 1x Kineis shield v2
 	- Jumpers 1,7 set to Arduino
-	- Jumpers 2, 3 set to STM32
+	- Jumpers 2,3 set to STM32
 
 Data Logger: https://thepihut.com/products/adafruit-assembled-data-logging-shield-for-arduino?variant=27739231185
 
