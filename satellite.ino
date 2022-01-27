@@ -26,7 +26,7 @@ unsigned int fileCounter = 1;
 #ifdef Satellite
 const char BAND[] = "B1";
 const char FRQ[] = "300";
-const char PWR[] = "750";
+const char PWR[] = "1000";
 const char TCXOWU[] = "5000";
 #if defined(__AVR_ATmega4809__)  // Arduino UNO Wifi Rev2
 HardwareSerial &kserial = Serial1;
@@ -64,7 +64,7 @@ void loop() {
 
   DateTime now = rtc.now();
   String filename = "datalog" + String(fileCounter) + ".txt";
-  int readingIntervalMinutes = 2;
+  int readingIntervalMinutes = 10;
   if (minutesSinceLastReading == readingIntervalMinutes) {
     digitalWrite(greenLedPin, HIGH);
     minutesSinceLastReading = 0;
@@ -107,7 +107,7 @@ void loop() {
     File dataFile2 = SD.open(filename, FILE_WRITE);
     Serial.println(F("KIM -- Sending data ... "));
     while (!queue.isEmpty() && canTransmit()) {
-      delay(750);
+      delay(1000);
       kim.set_sleepMode(false);
       digitalWrite(redLedPin, HIGH);
       char dataPacketConverted[62];
@@ -140,9 +140,14 @@ void loop() {
 bool canTransmit() {
   bool transmit = false;
   SatellitePass satellitePasses[] = {
-    SatellitePass (DateTime (2022, 1, 20, 17, 47, 0), DateTime (2022, 1, 20, 17, 53, 0)),
-    SatellitePass (DateTime (2022, 1, 20, 18, 39, 0), DateTime (2022, 1, 20, 18, 44, 0)),
-    SatellitePass (DateTime (2022, 1, 20, 19, 27, 0), DateTime (2022, 1, 20, 19, 34, 0))
+    SatellitePass (DateTime (2022, 1, 27, 6, 17, 0), DateTime (2022, 1, 27, 6, 20, 0)),
+    SatellitePass (DateTime (2022, 1, 27, 8, 13, 0), DateTime (2022, 1, 27, 8, 20, 0)),
+    SatellitePass (DateTime (2022, 1, 27, 8, 22, 0), DateTime (2022, 1, 27, 8, 28, 0)),
+    SatellitePass (DateTime (2022, 1, 27, 9, 43, 0), DateTime (2022, 1, 27, 9, 49, 0)),
+    SatellitePass (DateTime (2022, 1, 27, 10, 17, 0), DateTime (2022, 1, 27, 10, 23, 0)),
+    SatellitePass (DateTime (2022, 1, 27, 10, 30, 0), DateTime (2022, 1, 27, 10, 37, 0)),
+    SatellitePass (DateTime (2022, 1, 27, 11, 24, 0), DateTime (2022, 1, 27, 11, 29, 0)),
+    SatellitePass (DateTime (2022, 1, 27, 11, 58, 0), DateTime (2022, 1, 27, 12, 3, 0))
   };
   for (int satellite = 0; satellite < sizeof(satellitePasses) / sizeof(SatellitePass); satellite++) {
     if (satellitePasses[satellite].isInRange(rtc.now())) {
