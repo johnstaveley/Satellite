@@ -6,10 +6,10 @@ using IoTHubTrigger = Microsoft.Azure.WebJobs.EventHubTriggerAttribute;
 
 namespace Receive
 {
-    public static class Function1
+    public static class IoTHubData
     {
 
-        [FunctionName("Function1")]
+        [FunctionName("IoTHubData")]
         public static void Run([IoTHubTrigger("messages/events", Connection = "AzureIoTHubConnectionString")] EventData message, ILogger log)
         {
             log.LogInformation($"C# IoT Hub trigger function processed a message: {Encoding.UTF8.GetString(message.Body.Array)}");
