@@ -10,6 +10,9 @@ Created 03/01/2022 by John Staveley for IoTNorth
 File data/Prepas.txt will need to be regenerated with up to date Lat/Long and dates in order to accurately predict when the satellites will pass overhead. Or get this from their website: https://argos-system.cls.fr/argos-cwi2/main.html
 The Arduino IDE was used to develop this code and upload it to a board. When the code is first deployed, the time on the real time clock will be set, if a battery is present, it will keep time accurately.
 
+If running the azure function locally, you need to put in a connection string for the IoTHub in your user secrets file.
+Take this from Azure Portal -> IoTHub -> Built in endpoints -> Event Hub compatible endpoint
+
 # HARDWARE SETUP
 In order to follow this demo project, you need the following hardware configured thus:
 
