@@ -26,7 +26,7 @@ unsigned int fileCounter = 1;
 #ifdef Satellite
 const char BAND[] = "B1";
 const char FRQ[] = "300";
-const char PWR[] = "1000";
+const char PWR[] = "750";
 const char TCXOWU[] = "5000";
 #if defined(__AVR_ATmega4809__)  // Arduino UNO Wifi Rev2
 HardwareSerial &kserial = Serial1;
