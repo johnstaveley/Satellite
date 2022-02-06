@@ -10,9 +10,12 @@ namespace Receive
     {
 
         [FunctionName("IoTHubData")]
-        public static void Run([IoTHubTrigger("messages/events", Connection = "AzureIoTHubConnectionString")] EventData message, ILogger log)
+        public static void Run([IoTHubTrigger("messages/events", Connection = "AzureIoTHubConnectionString", ConsumerGroup = "$Default")] EventData message, ILogger log)
         {
-            log.LogInformation($"C# IoT Hub trigger function processed a message: {Encoding.UTF8.GetString(message.Body.Array)}");
+            var payload = Encoding.UTF8.GetString(message.Body.Array);
+            var deviceId = message.SystemProperties["iothub-connection-device-id"];
+            log.LogInformation($"C# IoT Hub trigger function processed a message: {payload} from {deviceId}");
+
         }
     }
 }
