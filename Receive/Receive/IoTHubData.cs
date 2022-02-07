@@ -14,7 +14,7 @@ namespace Receive
         [FunctionName("IoTHubData")]
         public static async Task Run(
             [IoTHubTrigger("messages/events", Connection = "AzureIoTHubConnectionString", ConsumerGroup = "$Default")] EventData message, 
-            [Blob("outputdemo/{sys.utcnow}.txt", FileAccess.Write, Connection = "AzureWebJobsStorage")] Stream outputFile,
+            [Blob("kineis/{sys.utcnow}.txt", FileAccess.Write, Connection = "AzureWebJobsStorage")] Stream outputFile,
             ILogger log)
         {
             var payload = Encoding.UTF8.GetString(message.Body.Array);
