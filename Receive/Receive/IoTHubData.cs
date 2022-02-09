@@ -1,15 +1,17 @@
 using Microsoft.Azure.EventHubs;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using Receive.Models;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using IoTHubTrigger = Microsoft.Azure.WebJobs.EventHubTriggerAttribute;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using Receive.Models;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("Receive.Tests")]
 namespace Receive
 {
     public static class IoTHubData
@@ -27,9 +29,30 @@ namespace Receive
             UnicodeEncoding uniencoding = new UnicodeEncoding();
             byte[] output = uniencoding.GetBytes(payload);
             await outputFile.WriteAsync(output, 0, output.Length);
-            // TODO: Process Kineis payload into something intelligable
             var result = JsonSerializer.Deserialize<KineisRoot>(payload);
-            log.LogInformation($"Received raw data {result.Data.FirstOrDefault()?.RawData ?? ""}");
+            foreach (var data in result.Data)
+            {
+                var parsedData = ParseKineisData(data.RawData);
+                log.LogInformation($"Received raw data {data} which converted to {parsedData}");
+            }
+        }
+
+        internal static string ParseKineisData(string data)
+        {
+            List<string> hexValues = new List<string>();
+            // Convert to pairs of hex
+            for (int i = 0; i < data.Length; i=i+2)
+            {
+                hexValues.Add(data.Substring(i, 2));
+            }
+            // Convert to numbers
+            List<int> intValues = new List<int>();
+            foreach (var hexValue in hexValues)
+            {
+                intValues.Add(int.Parse(hexValue,System.Globalization.NumberStyles.HexNumber));
+            }
+            // Convert to chars
+            return string.Join("", intValues.Select(a => (char) a));
         }
     }
     
