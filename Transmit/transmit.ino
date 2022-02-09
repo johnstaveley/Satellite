@@ -26,7 +26,7 @@ unsigned int fileCounter = 1;
 #ifdef Satellite
 const char BAND[] = "B1";
 const char FRQ[] = "300";
-const char PWR[] = "750";
+const char PWR[] = "1000";
 const char TCXOWU[] = "5000";
 #if defined(__AVR_ATmega4809__)  // Arduino UNO Wifi Rev2
 HardwareSerial &kserial = Serial1;
@@ -116,6 +116,7 @@ void loop() {
       dataPacketToSend.toCharArray(dataPacketConverted, dataPacketToSend.length());
       now = rtc.now();
       char logEntry2[200];
+      memset(logEntry2, 0, sizeof(logEntry2));
       sprintf(logEntry2, "Sending: %02d/%02d/%04d %02d:%02d:%02d %s", now.day(), now.month(), now.year(), now.hour(), now.minute(), now.second(), dataPacketToSend.c_str());
       if (dataFile2) {
         dataFile2.println(logEntry2);
@@ -141,39 +142,81 @@ void loop() {
 bool canTransmit() {
   bool transmit = false;
   SatellitePass satellitePasses[] PROGMEM = {
-SatellitePass (DateTime (2022,2,7,7,2,56), DateTime (2022,2,7,7,7,14)),
-SatellitePass (DateTime (2022,2,7,7,14,23), DateTime (2022,2,7,7,15,24)),
-SatellitePass (DateTime (2022,2,7,7,42,4), DateTime (2022,2,7,7,47,19)),
-SatellitePass (DateTime (2022,2,7,8,22,57), DateTime (2022,2,7,8,25,8)),
-SatellitePass (DateTime (2022,2,7,8,42,18), DateTime (2022,2,7,8,47,22)),
-SatellitePass (DateTime (2022,2,7,9,13,59), DateTime (2022,2,7,9,18,37)),
-SatellitePass (DateTime (2022,2,7,9,23,1), DateTime (2022,2,7,9,27,50)),
-SatellitePass (DateTime (2022,2,7,9,43,58), DateTime (2022,2,7,9,48,36)),
-SatellitePass (DateTime (2022,2,7,10,0,59), DateTime (2022,2,7,10,6,13)),
-SatellitePass (DateTime (2022,2,7,10,23,37), DateTime (2022,2,7,10,26,12)),
-SatellitePass (DateTime (2022,2,7,10,53,53), DateTime (2022,2,7,10,58,57)),
-SatellitePass (DateTime (2022,2,7,11,24,21), DateTime (2022,2,7,11,29,37)),
-SatellitePass (DateTime (2022,2,7,11,41,41), DateTime (2022,2,7,11,45,55)),
-SatellitePass (DateTime (2022,2,7,12,35,43), DateTime (2022,2,7,12,38,0)),
-SatellitePass (DateTime (2022,2,7,13,6,28), DateTime (2022,2,7,13,9,17)),
-SatellitePass (DateTime (2022,2,7,16,51,57), DateTime (2022,2,7,16,55,13)),
-SatellitePass (DateTime (2022,2,7,17,17,13), DateTime (2022,2,7,17,19,41)),
-SatellitePass (DateTime (2022,2,7,17,35,12), DateTime (2022,2,7,17,40,4)),
-SatellitePass (DateTime (2022,2,7,17,35,23), DateTime (2022,2,7,17,39,46)),
-SatellitePass (DateTime (2022,2,7,18,29,1), DateTime (2022,2,7,18,34,14)),
-SatellitePass (DateTime (2022,2,7,18,50,27), DateTime (2022,2,7,18,53,59)),
-SatellitePass (DateTime (2022,2,7,19,4,31), DateTime (2022,2,7,19,8,16)),
-SatellitePass (DateTime (2022,2,7,19,14,31), DateTime (2022,2,7,19,19,24)),
-SatellitePass (DateTime (2022,2,7,19,15,19), DateTime (2022,2,7,19,20,35)),
-SatellitePass (DateTime (2022,2,7,19,37,58), DateTime (2022,2,7,19,41,55)),
-SatellitePass (DateTime (2022,2,7,19,50,15), DateTime (2022,2,7,19,55,8)),
-SatellitePass (DateTime (2022,2,7,20,10,46), DateTime (2022,2,7,20,14,35)),
-SatellitePass (DateTime (2022,2,7,20,42,25), DateTime (2022,2,7,20,47,44)),
-SatellitePass (DateTime (2022,2,7,20,55,47), DateTime (2022,2,7,20,57,46)),
-SatellitePass (DateTime (2022,2,7,21,16,32), DateTime (2022,2,7,21,22,0)),
-SatellitePass (DateTime (2022,2,7,21,30,14), DateTime (2022,2,7,21,35,13)),
-SatellitePass (DateTime (2022,2,7,22,25,7), DateTime (2022,2,7,22,28,32)),
-SatellitePass (DateTime (2022,2,7,22,59,52), DateTime (2022,2,7,23,3,25))
+    SatellitePass (DateTime (2022,2,9,4,29,30), DateTime (2022,2,9,4,32,43)),
+    SatellitePass (DateTime (2022,2,9,5,22,9), DateTime (2022,2,9,5,24,32)),
+    SatellitePass (DateTime (2022,2,9,6,9,39), DateTime (2022,2,9,6,12,17)),
+    SatellitePass (DateTime (2022,2,9,7,20,41), DateTime (2022,2,9,7,23,43)),
+    SatellitePass (DateTime (2022,2,9,7,53,34), DateTime (2022,2,9,7,57,8)),
+    SatellitePass (DateTime (2022,2,9,9,1,3), DateTime (2022,2,9,9,4,30)),
+    SatellitePass (DateTime (2022,2,9,9,21,50), DateTime (2022,2,9,9,24,46)),
+    SatellitePass (DateTime (2022,2,9,9,34,28), DateTime (2022,2,9,9,36,34)),
+    SatellitePass (DateTime (2022,2,9,10,14,4), DateTime (2022,2,9,10,17,46)),
+    SatellitePass (DateTime (2022,2,9,11,1,44), DateTime (2022,2,9,11,5,0)),
+    SatellitePass (DateTime (2022,2,9,11,2,2), DateTime (2022,2,9,11,5,53)),
+    SatellitePass (DateTime (2022,2,9,11,56,23), DateTime (2022,2,9,11,57,18)),
+    SatellitePass (DateTime (2022,2,9,17,14,31), DateTime (2022,2,9,17,16,25)),
+    SatellitePass (DateTime (2022,2,9,17,41,4), DateTime (2022,2,9,17,43,50)),
+    SatellitePass (DateTime (2022,2,9,18,14,6), DateTime (2022,2,9,18,17,31)),
+    SatellitePass (DateTime (2022,2,9,18,21,16), DateTime (2022,2,9,18,23,41)),
+    SatellitePass (DateTime (2022,2,9,18,52,46), DateTime (2022,2,9,18,56,38)),
+    SatellitePass (DateTime (2022,2,9,19,12,49), DateTime (2022,2,9,19,13,52)),
+    SatellitePass (DateTime (2022,2,9,19,20,7), DateTime (2022,2,9,19,23,29)),
+    SatellitePass (DateTime (2022,2,9,19,54,26), DateTime (2022,2,9,19,56,37)),
+    SatellitePass (DateTime (2022,2,9,20,2,52), DateTime (2022,2,9,20,6,11)),
+    SatellitePass (DateTime (2022,2,9,20,49,40), DateTime (2022,2,9,20,53,24)),
+    SatellitePass (DateTime (2022,2,9,20,54,5), DateTime (2022,2,9,20,57,50)),
+    SatellitePass (DateTime (2022,2,9,21,43,29), DateTime (2022,2,9,21,46,24)),
+    SatellitePass (DateTime (2022,2,9,22,36,46), DateTime (2022,2,9,22,38,54)),
+    SatellitePass (DateTime (2022,2,10,3,59,34), DateTime (2022,2,10,4,1,54)),
+    SatellitePass (DateTime (2022,2,10,5,6,48), DateTime (2022,2,10,5,9,15)),
+    SatellitePass (DateTime (2022,2,10,5,37,38), DateTime (2022,2,10,5,41,3)),
+    SatellitePass (DateTime (2022,2,10,7,9,15), DateTime (2022,2,10,7,11,47)),
+    SatellitePass (DateTime (2022,2,10,7,28,39), DateTime (2022,2,10,7,31,46)),
+    SatellitePass (DateTime (2022,2,10,8,49,6), DateTime (2022,2,10,8,52,45)),
+    SatellitePass (DateTime (2022,2,10,9,1,56), DateTime (2022,2,10,9,3,52)),
+    SatellitePass (DateTime (2022,2,10,9,8,34), DateTime (2022,2,10,9,11,33)),
+    SatellitePass (DateTime (2022,2,10,9,53,25), DateTime (2022,2,10,9,57,1)),
+    SatellitePass (DateTime (2022,2,10,10,40,47), DateTime (2022,2,10,10,44,23)),
+    SatellitePass (DateTime (2022,2,10,10,50,3), DateTime (2022,2,10,10,53,54)),
+    SatellitePass (DateTime (2022,2,10,11,34,29), DateTime (2022,2,10,11,36,49)),
+    SatellitePass (DateTime (2022,2,10,12,32,47), DateTime (2022,2,10,12,34,0)),
+    SatellitePass (DateTime (2022,2,10,17,3,53), DateTime (2022,2,10,17,4,45)),
+    SatellitePass (DateTime (2022,2,10,17,17,18), DateTime (2022,2,10,17,18,51)),
+    SatellitePass (DateTime (2022,2,10,17,43,34), DateTime (2022,2,10,17,46,18)),
+    SatellitePass (DateTime (2022,2,10,18,6,6), DateTime (2022,2,10,18,8,24)),
+    SatellitePass (DateTime (2022,2,10,18,40,54), DateTime (2022,2,10,18,44,48)),
+    SatellitePass (DateTime (2022,2,10,18,54,31), DateTime (2022,2,10,18,58,10)),
+    SatellitePass (DateTime (2022,2,10,19,22,40), DateTime (2022,2,10,19,25,49)),
+    SatellitePass (DateTime (2022,2,10,19,42,48), DateTime (2022,2,10,19,45,37)),
+    SatellitePass (DateTime (2022,2,10,20,29,1), DateTime (2022,2,10,20,32,43)),
+    SatellitePass (DateTime (2022,2,10,20,42,18), DateTime (2022,2,10,20,45,54)),
+    SatellitePass (DateTime (2022,2,10,21,22,7), DateTime (2022,2,10,21,25,34)),
+    SatellitePass (DateTime (2022,2,10,22,12,9), DateTime (2022,2,10,22,13,19)),
+    SatellitePass (DateTime (2022,2,10,22,24,1), DateTime (2022,2,10,22,26,48)),
+    SatellitePass (DateTime (2022,2,11,4,51,37), DateTime (2022,2,11,4,54,0)),
+    SatellitePass (DateTime (2022,2,11,5,6,21), DateTime (2022,2,11,5,9,57)),
+    SatellitePass (DateTime (2022,2,11,6,58,5), DateTime (2022,2,11,6,59,50)),
+    SatellitePass (DateTime (2022,2,11,7,4,12), DateTime (2022,2,11,7,6,20)),
+    SatellitePass (DateTime (2022,2,11,8,37,11), DateTime (2022,2,11,8,40,57)),
+    SatellitePass (DateTime (2022,2,11,8,42,59), DateTime (2022,2,11,8,46,27)),
+    SatellitePass (DateTime (2022,2,11,9,32,59), DateTime (2022,2,11,9,36,12)),
+    SatellitePass (DateTime (2022,2,11,10,20,0), DateTime (2022,2,11,10,23,42)),
+    SatellitePass (DateTime (2022,2,11,10,38,6), DateTime (2022,2,11,10,41,54)),
+    SatellitePass (DateTime (2022,2,11,11,13,14), DateTime (2022,2,11,11,16,16)),
+    SatellitePass (DateTime (2022,2,11,12,20,4), DateTime (2022,2,11,12,22,9)),
+    SatellitePass (DateTime (2022,2,11,17,51,4), DateTime (2022,2,11,17,53,5)),
+    SatellitePass (DateTime (2022,2,11,18,29,7), DateTime (2022,2,11,18,32,58)),
+    SatellitePass (DateTime (2022,2,11,18,29,17), DateTime (2022,2,11,18,32,56)),
+    SatellitePass (DateTime (2022,2,11,18,51,21), DateTime (2022,2,11,18,54,54)),
+    SatellitePass (DateTime (2022,2,11,19,23,12), DateTime (2022,2,11,19,25,5)),
+    SatellitePass (DateTime (2022,2,11,19,25,56), DateTime (2022,2,11,19,26,58)),
+    SatellitePass (DateTime (2022,2,11,20,8,37), DateTime (2022,2,11,20,12,5)),
+    SatellitePass (DateTime (2022,2,11,20,12,41), DateTime (2022,2,11,20,13,15)),
+    SatellitePass (DateTime (2022,2,11,20,13,21), DateTime (2022,2,11,20,14,13)),
+    SatellitePass (DateTime (2022,2,11,20,30,37), DateTime (2022,2,11,20,33,58)),
+    SatellitePass (DateTime (2022,2,11,21,1,4), DateTime (2022,2,11,21,4,46)),
+    SatellitePass (DateTime (2022,2,11,21,49,45), DateTime (2022,2,11,21,52,24)),
+    SatellitePass (DateTime (2022,2,11,22,11,31), DateTime (2022,2,11,22,14,43))
   };
   for (int satellite = 0; satellite < sizeof(satellitePasses) / sizeof(SatellitePass); satellite++) {
     if (satellitePasses[satellite].isInRange(rtc.now())) {
@@ -191,6 +234,7 @@ String createSatelliteMessage(uint8_t day, uint8_t hour, uint8_t min, String use
   uint32_t alt  = 65;
 
   uint8_t userdata[20];
+  memset(userdata, 0, sizeof(userdata));
   userMessage.getBytes(userdata, userMessage.length());
 
   vMSGKINEIS_STDV1_cleanPayload(&message);
@@ -204,6 +248,7 @@ String createSatelliteMessage(uint8_t day, uint8_t hour, uint8_t min, String use
   char buf[3];
   String dataPacketString = "";
   for (counter = 0; counter < ARGOS_FRAME_LENGTH; counter++) {
+    memset(buf, 0, sizeof(buf));
     sprintf(buf, "%02x", message.payload[counter]);
     dataPacketString += buf;
   }
