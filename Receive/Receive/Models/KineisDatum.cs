@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Receive.Models
 {
-    public class KeneisDatum
+    public class KineisDatum
     {
         [JsonPropertyName("DEVICE_ID")]
         public string DeviceId { get; set; }

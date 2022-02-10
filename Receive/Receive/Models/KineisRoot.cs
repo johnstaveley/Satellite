@@ -12,6 +12,6 @@ namespace Receive.Models
         [JsonPropertyName("VERSION")]
         public int Version { get; set; }
         [JsonPropertyName("DATA")]
-        public List<KeneisDatum> Data { get; set; }
+        public List<KineisDatum> Data { get; set; }
     }
 }

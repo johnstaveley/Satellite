@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Receive", "Receive\Receive.csproj", "{7537E3EF-9275-4A76-A3CF-25BA1DEEF072}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Receive.Tests", "Receive.Tests\Receive.Tests.csproj", "{210185E2-A36B-40D8-85B9-8FC85E1DC520}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Receive.Tests", "Receive.Tests\Receive.Tests.csproj", "{210185E2-A36B-40D8-85B9-8FC85E1DC520}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,9 +29,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{7537E3EF-9275-4A76-A3CF-25BA1DEEF072} = {540EB56E-18A7-4848-8BD9-56AE9E73B4F7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BC053226-946C-4396-B754-49690E1FC7DA}

@@ -16,7 +16,9 @@ namespace Receive.Tests
             var result = IoTHubData.ParseKineisData(stringToParse);
 
             // Assert
-            Assert.That(result.Contains("8|79|10.32C"));
+            Assert.That(result.Raw.Contains("|79|10.32C"));
+            Assert.That(result.Id, Is.EqualTo(79));
+            Assert.That(result.Temperature, Is.EqualTo(10.32));
         }
 
 
