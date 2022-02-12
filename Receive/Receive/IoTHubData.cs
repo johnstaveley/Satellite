@@ -42,7 +42,7 @@ namespace Receive
                 log.LogInformation($"Received raw data {data.RawData} which converted to {parsedData.Converted}, Id: {parsedData.Id}, Temperature: {parsedData.Temperature}, IsValid: {parsedData.IsValid}");
                 if (parsedData.IsValid)
                 {
-                    outputTable.Add(new TelemetryOutput { PartitionKey = "Temperature", RowKey = parsedData.Id.ToString(), Message = parsedData.Temperature.ToString() });
+                    outputTable.Add(new TelemetryOutput { PartitionKey = "Temperature2", RowKey = parsedData.Id.ToString(), Message = parsedData.Temperature.ToString() });
                 }
             }
         }

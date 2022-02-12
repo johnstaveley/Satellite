@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using NUnit.Framework.Constraints;
 
 namespace Receive.Tests
 {
@@ -14,6 +15,9 @@ namespace Receive.Tests
         [TestCase("A98EEA23436EE8018620387C39327C352E303743000000000000007E372150", "|92|5.07C", 92, 5.07, true)]
         [TestCase("8AFFEA58436EC80186A0387C3133327C372E39334300000000000073A2A200", "|132|7.93C", 132, 7.93, true)]
         [TestCase("92A8EA5D236EE80186A0387C3133367C392E32334300000000000085DFCE40", "|136|9.23C", 136, 9.23, true)]
+        [TestCase("C035EB0B636EE80186A0387C3232307C332E3539430060000000004CBDFA30", "|220|3.59C", 220, 3.59,true)]
+        [TestCase("0B91EB25236CE80106A0383C323430779FC3C2E98600000020040090EDCA61", "N/A", 0, 0, false)]
+        [TestCase("068BE341836EE80086A0387C3236317C302E39344300080000400016F49320", "|261|0.94C", 261, 0.94, true)]
         public void Given_KineisData_When_Parse_Then_ReturnsConvertedString(string stringToParse, string expectedUserData, int expectedId, double expectedTemperature, bool expectedIsValid)
         {
             // Arrange
