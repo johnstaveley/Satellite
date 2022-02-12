@@ -25,7 +25,7 @@ namespace Receive
         [Singleton] // To avoid collisions naming output files
         public static async Task Run(
             [IoTHubTrigger("messages/events", Connection = "AzureIoTHubConnectionString", ConsumerGroup = "$Default")] EventData message,
-            [Blob("kineis/{sys.utcnow}.txt", FileAccess.Write, Connection = "AzureWebJobsStorage")] Stream outputFile,
+            [Blob("kineis/{name}", FileAccess.Write, Connection = "AzureWebJobsStorage")] Stream outputFile,
             [Table("Kineis", Connection = "AzureWebJobsStorage")] ICollector<TelemetryOutput> outputTable,
             ILogger log)
         {
@@ -45,6 +45,7 @@ namespace Receive
                     outputTable.Add(new TelemetryOutput { PartitionKey = "Temperature2", RowKey = parsedData.Id.ToString(), Message = parsedData.Temperature.ToString() });
                 }
             }
+            await Task.Delay(1000);
         }
 
         internal static TelemetryResult ParseKineisData(string data)
@@ -71,7 +72,6 @@ namespace Receive
             {
                 Converted = convertedString
             };
-
 
             if (match.Groups.Count == 3)
             {

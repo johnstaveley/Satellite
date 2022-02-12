@@ -18,6 +18,7 @@ namespace Receive.Tests
         [TestCase("C035EB0B636EE80186A0387C3232307C332E3539430060000000004CBDFA30", "|220|3.59C", 220, 3.59,true)]
         [TestCase("0B91EB25236CE80106A0383C323430779FC3C2E98600000020040090EDCA61", "N/A", 0, 0, false)]
         [TestCase("068BE341836EE80086A0387C3236317C302E39344300080000400016F49320", "|261|0.94C", 261, 0.94, true)]
+        [TestCase("E80CEC09A32EE80186A0387C337C352E3136430000000000004002B6A64150", "|3|5.16C", 3, 5.16, true)]
         public void Given_KineisData_When_Parse_Then_ReturnsConvertedString(string stringToParse, string expectedUserData, int expectedId, double expectedTemperature, bool expectedIsValid)
         {
             // Arrange
