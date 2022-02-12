@@ -145,18 +145,6 @@ void loop() {
 bool canTransmit() {
   bool transmit = false;
   SatellitePass satellitePasses[] PROGMEM = {
-    SatellitePass (DateTime (2022,2,12,4,36,46), DateTime (2022,2,12,4,38,58)),
-    SatellitePass (DateTime (2022,2,12,6,16,23), DateTime (2022,2,12,6,18,49)),
-    SatellitePass (DateTime (2022,2,12,8,17,25), DateTime (2022,2,12,8,21,4)),
-    SatellitePass (DateTime (2022,2,12,8,25,6), DateTime (2022,2,12,8,28,57)),
-    SatellitePass (DateTime (2022,2,12,9,12,39), DateTime (2022,2,12,9,15,5)),
-    SatellitePass (DateTime (2022,2,12,9,59,7), DateTime (2022,2,12,10,2,44)),
-    SatellitePass (DateTime (2022,2,12,9,59,51), DateTime (2022,2,12,10,0,14)),
-    SatellitePass (DateTime (2022,2,12,10,8,19), DateTime (2022,2,12,10,8,57)),
-    SatellitePass (DateTime (2022,2,12,10,26,1), DateTime (2022,2,12,10,29,40)),
-    SatellitePass (DateTime (2022,2,12,10,51,58), DateTime (2022,2,12,10,55,29)),
-    SatellitePass (DateTime (2022,2,12,11,40,15), DateTime (2022,2,12,11,42,30)),
-    SatellitePass (DateTime (2022,2,12,12,7,22), DateTime (2022,2,12,12,10,9)),
     SatellitePass (DateTime (2022,2,12,17,36,10), DateTime (2022,2,12,17,37,31)),
     SatellitePass (DateTime (2022,2,12,18,4,38), DateTime (2022,2,12,18,7,59)),
     SatellitePass (DateTime (2022,2,12,18,17,38), DateTime (2022,2,12,18,21,23)),

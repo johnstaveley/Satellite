@@ -25,7 +25,7 @@ namespace Receive
         [Singleton] // To avoid collisions naming output files
         public static async Task Run(
             [IoTHubTrigger("messages/events", Connection = "AzureIoTHubConnectionString", ConsumerGroup = "$Default")] EventData message,
-            [Blob("kineis/{name}", FileAccess.Write, Connection = "AzureWebJobsStorage")] Stream outputFile,
+            [Blob("kineis/{sys.utcnow}.txt", FileAccess.Write, Connection = "AzureWebJobsStorage")] Stream outputFile,
             [Table("Kineis", Connection = "AzureWebJobsStorage")] ICollector<TelemetryOutput> outputTable,
             ILogger log)
         {
