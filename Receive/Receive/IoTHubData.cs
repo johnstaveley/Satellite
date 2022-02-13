@@ -1,8 +1,8 @@
-using System;
 using Microsoft.Azure.EventHubs;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Receive.Models;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -21,21 +21,30 @@ namespace Receive
     public static class IoTHubData
     {
 
-
         [FunctionName("IoTHubData")]
-        [Singleton] // To avoid collisions naming output files
         public static async Task Run(
             [IoTHubTrigger("messages/events", Connection = "AzureIoTHubConnectionString", ConsumerGroup = "$Default")] EventData message,
-            [Blob("kineis/{sys.utcnow}.txt", FileAccess.Write, Connection = "AzureWebJobsStorage")] Stream outputFile,
             [Table("Kineis", Connection = "AzureWebJobsStorage")] ICollector<TelemetryOutput> outputTable,
-            ILogger log)
+            Binder binder, ILogger log)
         {
+            // Get incoming data packet
             var payload = Encoding.UTF8.GetString(message.Body.Array);
             var deviceId = message.SystemProperties["iothub-connection-device-id"];
             log.LogInformation($"IoT Hub trigger function processed a message: {payload} from {deviceId}");
-            UnicodeEncoding uniencoding = new UnicodeEncoding();
-            byte[] output = uniencoding.GetBytes(payload);
-            await outputFile.WriteAsync(output, 0, output.Length);
+
+            // Store raw information to blob storage
+            var output = payload.ToCharArray();
+            var filename = $"kineis/{DateTime.UtcNow:yyyy-MM-ddTHH:mm:ssZ}-{Guid.NewGuid().ToString().Substring(0,4)}.txt";
+            var attribute = new BlobAttribute(filename, FileAccess.Write)
+            {
+                Connection = "AzureWebJobsStorage"
+            };
+            await using (var writer = await binder.BindAsync<TextWriter>(attribute))
+            {
+                await writer.WriteAsync(output, 0, output.Length);
+            }
+
+            // Unpack and interpret kineis data package
             var result = JsonSerializer.Deserialize<KineisRoot>(payload);
             foreach (var data in result.Data)
             {
@@ -43,10 +52,11 @@ namespace Receive
                 log.LogInformation($"Received raw data {data.RawData} which converted to {parsedData.Converted}, Id: {parsedData.Id}, Temperature: {parsedData.Temperature}, IsValid: {parsedData.IsValid}");
                 if (parsedData.IsValid)
                 {
+                    // Store business data to azure table storage
                     try {
                         outputTable.Add(new TelemetryOutput { PartitionKey = "Temperature2", RowKey = parsedData.Id.ToString(), Message = parsedData.Temperature.ToString() });
                     } catch (Exception exception) {
-                        log.LogWarning(exception, "Failed to save temperature reading. Does the rowid already exist?");
+                        log.LogWarning(exception, "Failed to save temperature reading. Does rowid already exist?");
                     }
                 }
             }
