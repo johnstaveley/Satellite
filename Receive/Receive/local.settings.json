@@ -1,8 +1,9 @@
 {
-    "IsEncrypted": false,
-    "Values": {
-      "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-      "FUNCTIONS_WORKER_RUNTIME": "dotnet",
-      "AzureIoTHubConnectionString":  "CHANGEME" 
-    }
+  "IsEncrypted": false,
+  "WEBSITE_MAX_DYNAMIC_APPLICATION_SCALE_OUT": 1,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "AzureIoTHubConnectionString": "CHANGEME"
+  }
 }

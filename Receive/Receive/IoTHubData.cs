@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Azure.EventHubs;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
@@ -31,7 +32,7 @@ namespace Receive
         {
             var payload = Encoding.UTF8.GetString(message.Body.Array);
             var deviceId = message.SystemProperties["iothub-connection-device-id"];
-            log.LogInformation($"C# IoT Hub trigger function processed a message: {payload} from {deviceId}");
+            log.LogInformation($"IoT Hub trigger function processed a message: {payload} from {deviceId}");
             UnicodeEncoding uniencoding = new UnicodeEncoding();
             byte[] output = uniencoding.GetBytes(payload);
             await outputFile.WriteAsync(output, 0, output.Length);
@@ -42,10 +43,13 @@ namespace Receive
                 log.LogInformation($"Received raw data {data.RawData} which converted to {parsedData.Converted}, Id: {parsedData.Id}, Temperature: {parsedData.Temperature}, IsValid: {parsedData.IsValid}");
                 if (parsedData.IsValid)
                 {
-                    outputTable.Add(new TelemetryOutput { PartitionKey = "Temperature2", RowKey = parsedData.Id.ToString(), Message = parsedData.Temperature.ToString() });
+                    try {
+                        outputTable.Add(new TelemetryOutput { PartitionKey = "Temperature2", RowKey = parsedData.Id.ToString(), Message = parsedData.Temperature.ToString() });
+                    } catch (Exception exception) {
+                        log.LogWarning(exception, "Failed to save temperature reading. Does the rowid already exist?");
+                    }
                 }
             }
-            await Task.Delay(1000);
         }
 
         internal static TelemetryResult ParseKineisData(string data)
