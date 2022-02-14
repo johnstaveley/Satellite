@@ -34,7 +34,7 @@ namespace Receive
 
             // Store raw information to blob storage
             var output = payload.ToCharArray();
-            var filename = $"kineis/{DateTime.UtcNow:yyyy-MM-ddTHH:mm:ssZ}-{Guid.NewGuid().ToString().Substring(0,4)}.txt";
+            var filename = $"kineis/{DateTime.UtcNow:yyyy-MM-ddTHH-mm-ssZ}-{Guid.NewGuid().ToString().Substring(0,4)}.txt";
             var attribute = new BlobAttribute(filename, FileAccess.Write)
             {
                 Connection = "AzureWebJobsStorage"
