@@ -54,7 +54,7 @@ namespace Receive
                 {
                     // Store business data to azure table storage
                     try {
-                        outputTable.Add(new TelemetryOutput { PartitionKey = "Temperature2", RowKey = parsedData.Id.ToString(), Message = parsedData.Temperature.ToString() });
+                        outputTable.Add(new TelemetryOutput { PartitionKey = "Temperature3e", RowKey = parsedData.Id.ToString(), Message = parsedData.Temperature.ToString() });
                     } catch (Exception exception) {
                         log.LogWarning(exception, "Failed to save temperature reading. Does rowid already exist?");
                     }
@@ -112,7 +112,7 @@ namespace Receive
             {
                 for (int i = startBit; i <= startBit + numberOfBits - 1; i++)
                 {
-                    result = (byte)(result & ~(1 << bitNumber) | ((bitArray[i] ? 1 : 0) << bitNumber));
+                    result = (byte) (result & ~(1 << bitNumber) | ((bitArray[i] ? 1 : 0) << bitNumber));
                     bitNumber++;
                 }
             }
