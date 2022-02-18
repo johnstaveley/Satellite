@@ -1,20 +1,32 @@
 // -------------------------------------------------------------------------- //
-//! @file   msg_kineis_std.h
-//! @brief  Argos message MSGKINEIS_STDV1 formatting algorithms defines
-//!			As an example this format is used in kineis adventure.
-//!			It contains date, GPS localisation, user data and CRC16
-//! @author Kineis
-//! @date   2020-04-01
+//! @file	msg_kineis_std.h
+//! @brief	Kineis message MSGKINEIS_STDV1 formatting algorithms defines
+//!			This library can be used for these formats :
+//!				- Position and user data
+//!				- User data only
+//! @note	It is recommended to insert an integrity check in the form of a
+//!			CRC16 and BCH32 inserted at the beginning and at the end of the
+//!			message.
+//!			In order to ensure this, use vMSGKINEIS_STDV1_setCRC16andBCH32 or
+//!			vMSGKINEIS_STDV1_setCRC16 functions.
+//! @author	Kineis
+//! @date	2020-04-01
 // -------------------------------------------------------------------------- //
 
 
 // -------------------------------------------------------------------------- //
-//! * Argos message MSGKINEIS_STDV1 structure :
+//! * Kineis message structures :
+//! With position :
+//! | Ext ID | CRC  | AcqPeriod | Day | Hour | Minute | Longitude | Latitude | Altitude | User data | BCH* |
+//! |        |      |           |     |      |        |           |          |          |           |      |
+//! |    4   |  16  |     3     |  5  |   5  |    6   |     22    |    21    |    10    |    124    |  32  |
 //!
-//! | CRC  | AcqPeriod | Day | Hour | Minute | Longitude | Latitude | Altitude | User data |
-//! |      |           |     |      |        |           |          |          |           |
-//! |  16  |     3     |  5  |  5   |   6    |    22     |    21    |    10    |    160    |
+//! User data only :
+//! | Ext ID | CRC  |                                   User data                                   | BCH* |
+//! |        |      |                                                                               |      |
+//! |    4   |  16  |                                      196                                      |  32  |
 //!
+//! *optional : If BCH is not used, the "User data" field is 32 bits larger.
 // -------------------------------------------------------------------------- //
 
 #ifndef MSG_KINEIS_STD_H
@@ -33,33 +45,31 @@ extern "C" {
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
-#include "msg_kineis_std_bch32.h"
 
 #pragma GCC visibility push(default)
 
 // -------------------------------------------------------------------------- //
 // Defines values
 // -------------------------------------------------------------------------- //
-//!<
-#define CRC16_WIDTH		16
-#define CRC16_TOPBIT		(1UL << (CRC16_WIDTH - 1))
-#define CRC16_POLYNOMIAL	0x11021UL
 
 //!< Length of the 'user data' part (max 20 bytes)
-#define USER_DATA_LENGTH	20
+#define USER_DATA_LENGTH		20
+#define USER_DATA_ONLY_LENGTH	29
 
 //!< length of an Argos frame containing GPS data and raw data (bytes)
-#define ARGOS_FRAME_LENGTH	((11) + (USER_DATA_LENGTH))
+#define ARGOS_FRAME_LENGTH		((11) + (USER_DATA_LENGTH))
 #define ARGOS_FRAME_LENGTH_BIT	(ARGOS_FRAME_LENGTH*8)
 
 //!< Position of the different parts in the payload (in bit)
-#define POSITION_STD_CRC			0
-#define POSITION_STD_ACQ_PERIOD		16
-#define POSITION_STD_DATE			19
-#define POSITION_STD_LOC			35
-#define POSITION_STD_USER_DATA		88
+#define POSITION_STD_EXT_ID			0
+#define POSITION_STD_CRC			4
+#define POSITION_STD_ACQ_PERIOD		20
+#define POSITION_STD_DATE			23
+#define POSITION_STD_LOC			39
+#define POSITION_STD_USER_DATA		92
 #define POSITION_STD_BCH32			216
 
+#define POSITION_STD_USER_DATA_ONLY	POSITION_STD_ACQ_PERIOD
 
 // -------------------------------------------------------------------------- //
 // Defines functions
@@ -147,7 +157,7 @@ u16MSGKINEIS_STDV1_setDate
 //! \brief Add location information to Argos message MSGKINEIS_STDV1
 //!
 //! This function adds the given latitude, longitude and altitude information to
-//!	the Argos payload.
+//! the Argos payload.
 //!
 //! \param[out] ArgosMsgHandle
 //!		Argos message
@@ -180,12 +190,12 @@ u16MSGKINEIS_STDV1_setLocation
 // -------------------------------------------------------------------------- //
 //! \brief Add user data to Argos message MSGKINEIS_STDV1
 //!
-//! This function adds day, hour, minutes information to the Argos payload.
+//! This function adds the given user data to the Argos payload.
 //!
 //! \param[out] ArgosMsgHandle
 //!		Argos message pointer
 //! \param[in] data
-//!		data user array
+//!		user data array
 //! \param[in] len
 //!		length of the array (max 20)
 //! \param[in] position
@@ -196,6 +206,35 @@ u16MSGKINEIS_STDV1_setLocation
 
 uint16_t
 u16MSGKINEIS_STDV1_setUserData
+(
+	ArgosMsgTypeDef_t *ArgosMsgHandle,
+	uint8_t data[],
+	uint8_t len,
+	uint16_t position
+);
+
+
+// -------------------------------------------------------------------------- //
+//! \brief Add user data ONLY to Argos message MSGKINEIS_STDV1
+//!
+//! This function adds the given user data ONLY to the Argos payload.
+//!
+//! \note This function should be used when location data are not used.
+//!
+//! \param[out] ArgosMsgHandle
+//!		Argos message pointer
+//! \param[in] data
+//!		user data array
+//! \param[in] len
+//!		length of the array (max 29)
+//! \param[in] position
+//!		Position in bit in the Argos message payload
+//!
+//! \return Last occupied bit
+// -------------------------------------------------------------------------- //
+
+uint16_t
+u16MSGKINEIS_STDV1_setUserDataOnly
 (
 	ArgosMsgTypeDef_t *ArgosMsgHandle,
 	uint8_t data[],
@@ -275,28 +314,6 @@ void
 vMSGKINEIS_STDV1_cleanPayload
 (
 	ArgosMsgTypeDef_t *ArgosMsgHandle
-);
-
-
-// -------------------------------------------------------------------------- //
-//! \brief Calculate the CRC16
-//!
-//! This function calculates the CRC16 from the MSB of the pointed byte by ptr
-//!	to the last bit : ptr+lengthBit
-//!	\note You can find details here : https://barrgroup.com/embedded-systems/how-to/crc-calculation-c-code
-//!
-//! \param[in] ptr
-//!		Pointer of the first byte
-//! \param[in] lengthBit
-//!		Length of the data in bit
-//!
-//! \return CRC value
-// -------------------------------------------------------------------------- //
-
-uint16_t u16MSGKINEIS_STDV1_calcCRC16
-(
-	uint8_t *ptr,
-	int16_t lengthBit
 );
 
 

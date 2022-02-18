@@ -1,17 +1,32 @@
 // -------------------------------------------------------------------------- //
-//! @file   msg_kineis_std.h
-//! @brief  Argos message formatting algorithms defines
-//! @author Kineis
-//! @date   2020-04-01
+//! @file	msg_kineis_std.c
+//! @brief	Kineis message MSGKINEIS_STDV1 formatting algorithms defines
+//!			This library can be used for these formats :
+//!				- Position and user data
+//!				- User data only
+//! @note	It is recommended to insert an integrity check in the form of a
+//!			CRC16 and BCH32 inserted at the beginning and at the end of the
+//!			message.
+//!			In order to ensure this, use vMSGKINEIS_STDV1_setCRC16andBCH32 or
+//!			vMSGKINEIS_STDV1_setCRC16 functions.
+//! @author	Kineis
+//! @date	2020-04-01
 // -------------------------------------------------------------------------- //
 
+
 // -------------------------------------------------------------------------- //
-//! * Argos message MSGKINEIS_STDV1 structure :
+//! * Kineis message structures :
+//! With position :
+//! | Ext ID | CRC  | AcqPeriod | Day | Hour | Minute | Longitude | Latitude | Altitude | User data | BCH* |
+//! |        |      |           |     |      |        |           |          |          |           |      |
+//! |    4   |  16  |     3     |  5  |   5  |    6   |     22    |    21    |    10    |    124    |  32  |
 //!
-//! | CRC  | AcqPeriod | Day | Hour | Minute | Longitude | Latitude | Altitude | User data |
-//! |      |           |     |      |        |           |          |          |           |
-//! |  16  |     3     |  5  |  5   |   6    |    22     |    21    |    10    |    160    |
+//! User data only :
+//! | Ext ID | CRC  |                                   User data                                   | BCH* |
+//! |        |      |                                                                               |      |
+//! |    4   |  16  |                                      196                                      |  32  |
 //!
+//! *optional : If BCH is not used, the "User data" field is 32 bits larger.
 // -------------------------------------------------------------------------- //
 
 
@@ -19,7 +34,13 @@
 // Includes
 // -------------------------------------------------------------------------- //
 #include "msg_kineis_std.h"
+#include "msg_kineis_utils.h"
 
+// -------------------------------------------------------------------------- //
+// Defines
+// -------------------------------------------------------------------------- //
+#define BCH32_WIDTH		32
+#define CRC16_WIDTH		16
 
 // -------------------------------------------------------------------------- //
 //! \brief Set one bit to 0 or 1 at the wanted position in the payload
@@ -76,8 +97,8 @@ uint16_t u16MSGKINEIS_STDV1_setValue(
 	position = position + length - 1;
 
 	while (j < length) {
-		if ((position-j+1)%8 == 0 && length-j > 7) {
-			ArgosMsgHandle->payload[(position-j) >> 3] = (value >> j) & 0xff;
+		if ((position - j + 1) % 8 == 0 && length - j > 7) {
+			ArgosMsgHandle->payload[(position - j) >> 3] = (value >> j) & 0xff;
 			j += 8;
 		} else {
 			val_bit = (value >> j) & 0x01;
@@ -128,10 +149,10 @@ uint16_t u16MSGKINEIS_STDV1_setDate(
 	position = u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, day, position, 5);
 
 	//!< Hour	: 5 bits
-	position = u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, hour, position+1, 5);
+	position = u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, hour, position + 1, 5);
 
 	//!< Min	: 6 bits
-	position = u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, min, position+1, 6);
+	position = u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, min, position + 1, 6);
 
 	//!< Last bit occupied
 	return position;
@@ -168,10 +189,10 @@ uint16_t u16MSGKINEIS_STDV1_setLocation(
 	position = u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, lon, position, 22);
 
 	//!< Latitude	: 21 bits
-	position = u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, lat, position+1, 21);
+	position = u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, lat, position + 1, 21);
 
 	//!< Altitude	: 10 bits
-	position = u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, alt, position+1, 10);
+	position = u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, alt, position + 1, 10);
 
 	//!< Last bit occupied
 	return position;
@@ -188,7 +209,7 @@ uint16_t u16MSGKINEIS_STDV1_setUserData(
 	uint8_t len,
 	uint16_t position)
 {
-	//User data	: 20 bytes
+	//User data	: 19.5 bytes
 	uint8_t i;
 
 	position--;
@@ -196,14 +217,19 @@ uint16_t u16MSGKINEIS_STDV1_setUserData(
 	if (ArgosMsgHandle == NULL)
 		return 0xffff;
 
-	if (len > 20)
-		len = 20;
+	if (len > USER_DATA_LENGTH)
+		len = USER_DATA_LENGTH;
 
-	for (i = 0; i < len; i++)
+	for (i = 0; i < len && i < (USER_DATA_LENGTH) - 1; i++)
 		position = u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, data[i], position + 1, 8);
 
-	for (i = len; i < USER_DATA_LENGTH; i++)
+	for (i = len; i < (USER_DATA_LENGTH) - 1; i++)
 		position = u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, 0, position + 1, 8);
+
+	if (len == USER_DATA_LENGTH)
+		position = u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, data[len - 1] >> 4, position + 1, 4);
+	else
+		position = u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, 0, position + 1, 4);
 
 	//!< Last bit occupied
 	return position;
@@ -211,44 +237,39 @@ uint16_t u16MSGKINEIS_STDV1_setUserData(
 
 
 // -------------------------------------------------------------------------- //
-//! \brief Calculate the CRC16
+// Add user data ONLY to Argos message
 // -------------------------------------------------------------------------- //
 
-uint16_t u16MSGKINEIS_STDV1_calcCRC16(
-		uint8_t *ptr,
-		int16_t lengthBit)
+uint16_t u16MSGKINEIS_STDV1_setUserDataOnly(
+	ArgosMsgTypeDef_t *ArgosMsgHandle,
+	uint8_t data[],
+	uint8_t len,
+	uint16_t position)
 {
-	uint16_t remainder = 0;
+	//User data	ONLY : 28.5 bytes
+	uint8_t i;
 
-	uint8_t leftShift = lengthBit % 8;
-	uint8_t rightShift = 8 - leftShift;
+	position--;
 
-	bool firstShift = true;
+	if (ArgosMsgHandle == NULL)
+		return 0xffff;
 
-	while (lengthBit > 0) {
-		if (leftShift == 0) {
-			remainder ^= ((uint16_t)*ptr << (CRC16_WIDTH - 8));
-		} else {
-			if (firstShift) {
-				firstShift = false;
-				remainder ^= ((uint16_t)(*ptr >> rightShift) << (CRC16_WIDTH - 8));
-			} else {
-				remainder ^= (((uint16_t)(*(ptr-1) << leftShift) |
-					(*(ptr) >> rightShift)) << (CRC16_WIDTH - 8));
-			}
-		}
-		ptr++;
+	if (len > USER_DATA_ONLY_LENGTH)
+		len = USER_DATA_ONLY_LENGTH;
 
-		for (uint8_t bit = 0; bit < 8; bit++) {
-			if (remainder & CRC16_TOPBIT)
-				remainder = (remainder << 1) ^ CRC16_POLYNOMIAL;
-			else
-				remainder = (remainder << 1);
+	for (i = 0; i < len && i < (USER_DATA_ONLY_LENGTH) - 1; i++)
+		position = u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, data[i], position + 1, 8);
 
-			lengthBit--;
-		}
-	}
-	return remainder;
+	for (i = len; i < (USER_DATA_ONLY_LENGTH) - 1; i++)
+		position = u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, 0, position + 1, 8);
+
+	if (len == USER_DATA_ONLY_LENGTH)
+		position = u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, data[len - 1] >> 4, position + 1, 4);
+	else
+		position = u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, 0, position + 1, 4);
+
+	//!< Last bit occupied
+	return position;
 }
 
 
@@ -263,9 +284,9 @@ void vMSGKINEIS_STDV1_setCRC16(
 	if (ArgosMsgHandle == NULL)
 		return;
 
-	uint16_t  crc;
+	uint16_t crc;
 
-	crc = u16MSGKINEIS_STDV1_calcCRC16(ArgosMsgHandle->payload + 2,
+	crc = u16MSG_KINEIS_UTILS_calcCRC16(ArgosMsgHandle->payload + 2,
 		ARGOS_FRAME_LENGTH_BIT - CRC16_WIDTH);
 
 	u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, crc, position, CRC16_WIDTH);
@@ -287,6 +308,7 @@ vMSGKINEIS_STDV1_cleanPayload(
 // -------------------------------------------------------------------------- //
 //! Add CRC16 and BCH32 to the payload
 // -------------------------------------------------------------------------- //
+
 void vMSGKINEIS_STDV1_setCRC16andBCH32(
 	ArgosMsgTypeDef_t *ArgosMsgHandle,
 	uint16_t position)
@@ -295,16 +317,16 @@ void vMSGKINEIS_STDV1_setCRC16andBCH32(
 		return;
 
 	uint32_t bch;
-	uint16_t  crc;
+	uint16_t crc;
 
 	// Calculate the CRC till the first bit of the BCH instead of the end
 	// of the payload
-	crc = u16MSGKINEIS_STDV1_calcCRC16(ArgosMsgHandle->payload + 2,
+	crc = u16MSG_KINEIS_UTILS_calcCRC16(ArgosMsgHandle->payload + 2,
 		ARGOS_FRAME_LENGTH_BIT - CRC16_WIDTH - BCH32_WIDTH);
 
 	u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, crc, POSITION_STD_CRC, CRC16_WIDTH);
 	
-	bch = u32MSGKINEIS_STDV1_calcBCH32(ArgosMsgHandle->payload,
+	bch = u32MSG_KINEIS_UTILS_calcBCH32(ArgosMsgHandle->payload,
 			ARGOS_FRAME_LENGTH_BIT - BCH32_WIDTH);
 
 	u16MSGKINEIS_STDV1_setValue(ArgosMsgHandle, bch, position, BCH32_WIDTH);
