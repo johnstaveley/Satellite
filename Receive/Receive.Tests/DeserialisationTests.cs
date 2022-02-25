@@ -8,7 +8,6 @@ namespace Receive.Tests
     public class DeserialisationTests
     {
 
-
         [Test]
         public void Given_Payload_When_Deserialise_Then_ObjectCreatedCorrectly()
         {

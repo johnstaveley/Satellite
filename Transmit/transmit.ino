@@ -44,7 +44,6 @@ int minutesSinceLastReading;
 int messageCounter;
 
 void setup() {
-  // set the printer of the stack.
   queue.setPrinter (Serial);
   minutesSinceLastReading = 0;
   messageCounter = 1;
@@ -60,6 +59,7 @@ void loop() {
   DateTime now = rtc.now();
   String filename = "datalog" + String(fileCounter) + ".txt";
   int readingIntervalMinutes = 20;
+  // Capture reading every X minutes, place in stack and log to SD card
   if (minutesSinceLastReading == readingIntervalMinutes) {
     digitalWrite(greenLedPin, HIGH);
     minutesSinceLastReading = 0;
@@ -97,6 +97,8 @@ void loop() {
     digitalWrite(greenLedPin, LOW);
   }
 
+  // If there is a message in the stack and a satellite passing overhead, then transmit the next message from the stack
+  // Log the transmission to the SD card
   if (!queue.isEmpty() && canTransmit()) {
     File dataFile2 = SD.open(filename, FILE_WRITE);
     Serial.println(F("KIM -- Sending data ... "));
@@ -115,7 +117,7 @@ void loop() {
       if (dataFile2) {
         dataFile2.println(logEntry2);
       }
-      // Send twice to ensure transmission
+      // Send thrice to ensure transmission
       for (int transmission = 0; transmission < 3; transmission++) {
         Serial.println(logEntry2);
         if (kim.send_data(dataPacketConverted, sizeof(dataPacketConverted) - 1) == OK_KIM) {
@@ -133,108 +135,15 @@ void loop() {
   }
 
   minutesSinceLastReading++; 
-  delay(delayTime); // Go to sleep
+  delay(delayTime); // Go to sleep until next time check
 }
 
+// Routine to work out if a satellite is passing overhead
 bool canTransmit() {
-  bool transmit = false;
+  bool transmit = false;  
   SatellitePass satellitePasses[] PROGMEM = {
-    SatellitePass (DateTime (2022,2,18,16,53,31), DateTime (2022,2,18,16,55,55)),
-SatellitePass (DateTime (2022,2,18,17,6,53), DateTime (2022,2,18,17,10,59)),
-SatellitePass (DateTime (2022,2,18,17,12,55), DateTime (2022,2,18,17,16,53)),
-SatellitePass (DateTime (2022,2,18,17,36,43), DateTime (2022,2,18,17,39,48)),
-SatellitePass (DateTime (2022,2,18,18,31,7), DateTime (2022,2,18,18,36,11)),
-SatellitePass (DateTime (2022,2,18,18,38,33), DateTime (2022,2,18,18,41,4)),
-SatellitePass (DateTime (2022,2,18,18,45,36), DateTime (2022,2,18,18,51,4)),
-SatellitePass (DateTime (2022,2,18,18,50,56), DateTime (2022,2,18,18,56,10)),
-SatellitePass (DateTime (2022,2,18,19,8,39), DateTime (2022,2,18,19,11,17)),
-SatellitePass (DateTime (2022,2,18,19,10,37), DateTime (2022,2,18,19,13,54)),
-SatellitePass (DateTime (2022,2,18,19,23,26), DateTime (2022,2,18,19,27,44)),
-SatellitePass (DateTime (2022,2,18,20,11,14), DateTime (2022,2,18,20,15,7)),
-SatellitePass (DateTime (2022,2,18,20,15,0), DateTime (2022,2,18,20,20,10)),
-SatellitePass (DateTime (2022,2,18,20,29,10), DateTime (2022,2,18,20,32,32)),
-SatellitePass (DateTime (2022,2,18,20,34,1), DateTime (2022,2,18,20,36,47)),
-SatellitePass (DateTime (2022,2,18,20,45,39), DateTime (2022,2,18,20,50,56)),
-SatellitePass (DateTime (2022,2,18,21,2,10), DateTime (2022,2,18,21,7,27)),
-SatellitePass (DateTime (2022,2,18,21,56,3), DateTime (2022,2,18,22,0,34)),
-SatellitePass (DateTime (2022,2,18,22,27,9), DateTime (2022,2,18,22,31,53)),
-SatellitePass (DateTime (2022,2,18,22,46,25), DateTime (2022,2,18,22,48,31)),
-SatellitePass (DateTime (2022,2,19,4,16,7), DateTime (2022,2,19,4,20,48)),
-SatellitePass (DateTime (2022,2,19,4,22,46), DateTime (2022,2,19,4,26,3)),
-SatellitePass (DateTime (2022,2,19,5,55,22), DateTime (2022,2,19,6,0,12)),
-SatellitePass (DateTime (2022,2,19,5,56,58), DateTime (2022,2,19,6,0,7)),
-SatellitePass (DateTime (2022,2,19,6,59,42), DateTime (2022,2,19,7,3,51)),
-SatellitePass (DateTime (2022,2,19,7,1,20), DateTime (2022,2,19,7,5,40)),
-SatellitePass (DateTime (2022,2,19,8,27,17), DateTime (2022,2,19,8,29,38)),
-SatellitePass (DateTime (2022,2,19,8,38,57), DateTime (2022,2,19,8,44,4)),
-SatellitePass (DateTime (2022,2,19,8,41,27), DateTime (2022,2,19,8,46,49)),
-SatellitePass (DateTime (2022,2,19,9,2,19), DateTime (2022,2,19,9,4,52)),
-SatellitePass (DateTime (2022,2,19,9,12,58), DateTime (2022,2,19,9,17,33)),
-SatellitePass (DateTime (2022,2,19,10,5,27), DateTime (2022,2,19,10,10,40)),
-SatellitePass (DateTime (2022,2,19,10,20,8), DateTime (2022,2,19,10,22,58)),
-SatellitePass (DateTime (2022,2,19,10,23,19), DateTime (2022,2,19,10,26,37)),
-SatellitePass (DateTime (2022,2,19,10,41,7), DateTime (2022,2,19,10,46,32)),
-SatellitePass (DateTime (2022,2,19,10,52,50), DateTime (2022,2,19,10,57,55)),
-SatellitePass (DateTime (2022,2,19,11,46,10), DateTime (2022,2,19,11,50,22)),
-SatellitePass (DateTime (2022,2,19,12,22,25), DateTime (2022,2,19,12,26,48)),
-SatellitePass (DateTime (2022,2,19,12,34,37), DateTime (2022,2,19,12,36,58)),
-SatellitePass (DateTime (2022,2,19,16,48,56), DateTime (2022,2,19,16,51,59)),
-SatellitePass (DateTime (2022,2,19,16,55,34), DateTime (2022,2,19,16,59,17)),
-SatellitePass (DateTime (2022,2,19,17,21,47), DateTime (2022,2,19,17,24,24)),
-SatellitePass (DateTime (2022,2,19,18,0,13), DateTime (2022,2,19,18,5,2)),
-SatellitePass (DateTime (2022,2,19,18,20,1), DateTime (2022,2,19,18,20,44)),
-SatellitePass (DateTime (2022,2,19,18,25,46), DateTime (2022,2,19,18,30,57)),
-SatellitePass (DateTime (2022,2,19,18,33,46), DateTime (2022,2,19,18,39,13)),
-SatellitePass (DateTime (2022,2,19,18,55,10), DateTime (2022,2,19,18,58,39)),
-SatellitePass (DateTime (2022,2,19,18,57,37), DateTime (2022,2,19,18,59,31)),
-SatellitePass (DateTime (2022,2,19,19,3,33), DateTime (2022,2,19,19,7,15)),
-SatellitePass (DateTime (2022,2,19,19,39,48), DateTime (2022,2,19,19,44,22)),
-SatellitePass (DateTime (2022,2,19,19,54,38), DateTime (2022,2,19,19,59,34)),
-SatellitePass (DateTime (2022,2,19,20,7,13), DateTime (2022,2,19,20,11,14)),
-SatellitePass (DateTime (2022,2,19,20,16,34), DateTime (2022,2,19,20,20,31)),
-SatellitePass (DateTime (2022,2,19,20,33,50), DateTime (2022,2,19,20,38,59)),
-SatellitePass (DateTime (2022,2,19,20,41,22), DateTime (2022,2,19,20,46,41)),
-SatellitePass (DateTime (2022,2,19,21,34,44), DateTime (2022,2,19,21,39,42)),
-SatellitePass (DateTime (2022,2,19,22,14,46), DateTime (2022,2,19,22,19,47)),
-SatellitePass (DateTime (2022,2,19,22,23,56), DateTime (2022,2,19,22,27,27)),
-SatellitePass (DateTime (2022,2,20,3,46,1), DateTime (2022,2,20,3,50,3)),
-SatellitePass (DateTime (2022,2,20,4,7,54), DateTime (2022,2,20,4,10,51)),
-SatellitePass (DateTime (2022,2,20,5,23,54), DateTime (2022,2,20,5,29,1)),
-SatellitePass (DateTime (2022,2,20,5,41,17), DateTime (2022,2,20,5,44,44)),
-SatellitePass (DateTime (2022,2,20,6,35,15), DateTime (2022,2,20,6,38,18)),
-SatellitePass (DateTime (2022,2,20,6,49,47), DateTime (2022,2,20,6,53,41)),
-SatellitePass (DateTime (2022,2,20,7,7,18), DateTime (2022,2,20,7,9,21)),
-SatellitePass (DateTime (2022,2,20,8,13,42), DateTime (2022,2,20,8,18,52)),
-SatellitePass (DateTime (2022,2,20,8,29,35), DateTime (2022,2,20,8,35,0)),
-SatellitePass (DateTime (2022,2,20,8,51,38), DateTime (2022,2,20,8,52,40)),
-SatellitePass (DateTime (2022,2,20,8,52,40), DateTime (2022,2,20,8,56,34)),
-SatellitePass (DateTime (2022,2,20,9,44,47), DateTime (2022,2,20,9,49,54)),
-SatellitePass (DateTime (2022,2,20,9,54,19), DateTime (2022,2,20,9,58,6)),
-SatellitePass (DateTime (2022,2,20,10,11,12), DateTime (2022,2,20,10,14,57)),
-SatellitePass (DateTime (2022,2,20,10,29,10), DateTime (2022,2,20,10,34,30)),
-SatellitePass (DateTime (2022,2,20,10,32,1), DateTime (2022,2,20,10,37,15)),
-SatellitePass (DateTime (2022,2,20,11,25,13), DateTime (2022,2,20,11,29,51)),
-SatellitePass (DateTime (2022,2,20,12,10,17), DateTime (2022,2,20,12,14,55)),
-SatellitePass (DateTime (2022,2,20,12,13,15), DateTime (2022,2,20,12,16,34)),
-SatellitePass (DateTime (2022,2,20,16,25,35), DateTime (2022,2,20,16,27,11)),
-SatellitePass (DateTime (2022,2,20,16,44,20), DateTime (2022,2,20,16,47,36)),
-SatellitePass (DateTime (2022,2,20,17,7,8), DateTime (2022,2,20,17,8,56)),
-SatellitePass (DateTime (2022,2,20,17,29,34), DateTime (2022,2,20,17,33,45)),
-SatellitePass (DateTime (2022,2,20,18,0,51), DateTime (2022,2,20,18,5,49)),
-SatellitePass (DateTime (2022,2,20,18,22,2), DateTime (2022,2,20,18,27,24)),
-SatellitePass (DateTime (2022,2,20,18,39,48), DateTime (2022,2,20,18,43,24)),
-SatellitePass (DateTime (2022,2,20,18,43,56), DateTime (2022,2,20,18,46,48)),
-SatellitePass (DateTime (2022,2,20,18,47,19), DateTime (2022,2,20,18,47,45)),
-SatellitePass (DateTime (2022,2,20,19,8,32), DateTime (2022,2,20,19,13,30)),
-SatellitePass (DateTime (2022,2,20,19,34,29), DateTime (2022,2,20,19,39,1)),
-SatellitePass (DateTime (2022,2,20,19,41,2), DateTime (2022,2,20,19,45,45)),
-SatellitePass (DateTime (2022,2,20,20,4,9), DateTime (2022,2,20,20,8,32)),
-SatellitePass (DateTime (2022,2,20,20,20,46), DateTime (2022,2,20,20,25,59)),
-SatellitePass (DateTime (2022,2,20,20,22,7), DateTime (2022,2,20,20,27,5)),
-SatellitePass (DateTime (2022,2,20,20,49,30), DateTime (2022,2,20,20,51,58)),
-SatellitePass (DateTime (2022,2,20,21,13,39), DateTime (2022,2,20,21,18,52)),
-SatellitePass (DateTime (2022,2,20,22,2,9), DateTime (2022,2,20,22,6,29)),
-SatellitePass (DateTime (2022,2,20,22,2,31), DateTime (2022,2,20,22,7,44))
+    SatellitePass (DateTime (2022,2,27,5,5,18), DateTime (2022,2,27,5,10,25))
+    // add in more passes
   };
   for (int satellite = 0; satellite < sizeof(satellitePasses) / sizeof(SatellitePass); satellite++) {
     if (satellitePasses[satellite].isInRange(rtc.now())) {
@@ -245,6 +154,7 @@ SatellitePass (DateTime (2022,2,20,22,2,31), DateTime (2022,2,20,22,7,44))
   return transmit;
 }
 
+// Function to create the message to send with error correction code
 String createSatelliteMessage(uint8_t day, uint8_t hour, uint8_t min, String userMessage) {
   ArgosMsgTypeDef_t message;
   int counter;
@@ -255,7 +165,7 @@ String createSatelliteMessage(uint8_t day, uint8_t hour, uint8_t min, String use
   uint8_t userdata[20];
   memset(userdata, 0, sizeof(userdata));
   userMessage.getBytes(userdata, userMessage.length());
-
+     
   vMSGKINEIS_STDV1_cleanPayload(&message);
   u16MSGKINEIS_STDV1_setAcqPeriod(&message, USER_MSG, POSITION_STD_ACQ_PERIOD); 
   u16MSGKINEIS_STDV1_setDate(&message, day, hour, min, POSITION_STD_DATE);
@@ -297,16 +207,12 @@ void initialiseSdCard() {
     // When time needs to be set on a new device, or after a power loss, the
     // following line sets the RTC to the date & time this sketch was compiled
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-    // This line sets the RTC with an explicit date & time, for example to set
-    // January 21, 2014 at 3am you would call:
-    // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
-    //
     // Note: allow 2 seconds after inserting battery or applying external power
     // without battery before calling adjust(). This gives the PCF8523's
     // crystal oscillator time to stabilize. If you call adjust() very quickly
     // after the RTC is powered, lostPower() may still return true.
   }
-  rtc.start();
+  rtc.start(); 
 
   DateTime now = rtc.now();
   char buf[60];
@@ -315,6 +221,7 @@ void initialiseSdCard() {
 
 }
 
+// Setup LEDs and serial output
 void initialiseHardware() {
   pinMode(redLedPin, OUTPUT);
   digitalWrite(redLedPin, LOW);
@@ -328,6 +235,7 @@ void initialiseHardware() {
   }
 }
 
+// Initialise the KIM1 satellite communication shield
 void initialiseSatellite() {
   Serial.println(F("Init KIM1 shield"));
 
@@ -367,6 +275,7 @@ void initialiseSatellite() {
   kim.set_sleepMode(true);
 }
 
+// Convert Analogue signal to temperature
 double getTemperatureFromThermistor(int rawADC) {
   double temperature;
   temperature = log(10000.0 * ((1024.0 / rawADC - 1)));
