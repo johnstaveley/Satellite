@@ -5,6 +5,7 @@
     <UserSecretsId>d8a8d575-b54d-45ee-a47b-5608dcafb0fb</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="27.2.1" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.EventHubs" Version="4.3.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="4.0.5" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="3.1.13" />

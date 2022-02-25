@@ -1,3 +1,5 @@
+using CsvHelper;
+using CsvHelper.Configuration;
 using Microsoft.Azure.EventHubs;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
@@ -5,6 +7,7 @@ using Receive.Models;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -34,7 +37,7 @@ namespace Receive
 
             // Store raw information to blob storage
             var output = payload.ToCharArray();
-            var filename = $"kineis/{DateTime.UtcNow:yyyy-MM-ddTHH-mm-ssZ}-{Guid.NewGuid().ToString().Substring(0,4)}.txt";
+            var filename = $"kineis/{DateTime.UtcNow:yyyy-MM-ddTHH-mm-ssZ}-{Guid.NewGuid().ToString().Substring(0, 4)}.txt";
             var attribute = new BlobAttribute(filename, FileAccess.Write)
             {
                 Connection = "AzureWebJobsStorage"
@@ -45,18 +48,47 @@ namespace Receive
             }
 
             // Unpack and interpret kineis data package
-            var result = JsonSerializer.Deserialize<KineisRoot>(payload);
-            foreach (var data in result.Data)
+            if (payload.StartsWith("DEVICE_ID"))
             {
-                var parsedData = ParseKineisData(data.RawData);
-                log.LogInformation($"Received raw data {data.RawData} which converted to {parsedData.Converted}, Id: {parsedData.Id}, Temperature: {parsedData.Temperature}, IsValid: {parsedData.IsValid}");
-                if (parsedData.IsValid)
+                // CSV Format
+                var kineisData = ParseKineisCsv(payload);
+                foreach (var csvLine in kineisData)
                 {
-                    // Store business data to azure table storage
-                    try {
-                        outputTable.Add(new TelemetryOutput { PartitionKey = "Temperature3e", RowKey = parsedData.Id.ToString(), Message = parsedData.Temperature.ToString() });
-                    } catch (Exception exception) {
-                        log.LogWarning(exception, "Failed to save temperature reading. Does rowid already exist?");
+                    var parsedData = ParseKineisData(csvLine.RawSensorData);
+                    log.LogInformation($"Received raw data {csvLine.RawSensorData} which converted to {parsedData.Converted}, Id: {parsedData.Id}, Temperature: {parsedData.Temperature}, IsValid: {parsedData.IsValid}");
+                    if (parsedData.IsValid)
+                    {
+                        // Store business data to azure table storage
+                        try
+                        {
+                            outputTable.Add(new TelemetryOutput { PartitionKey = "Temperature3c", RowKey = parsedData.Id.ToString(), Message = parsedData.Temperature.ToString() });
+                        }
+                        catch (Exception exception)
+                        {
+                            log.LogWarning(exception, "Failed to save temperature reading. Does rowid already exist?");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // JSON Format
+                var result = JsonSerializer.Deserialize<KineisRoot>(payload);
+                foreach (var data in result.Data)
+                {
+                    var parsedData = ParseKineisData(data.RawData);
+                    log.LogInformation($"Received raw data {data.RawData} which converted to {parsedData.Converted}, Id: {parsedData.Id}, Temperature: {parsedData.Temperature}, IsValid: {parsedData.IsValid}");
+                    if (parsedData.IsValid)
+                    {
+                        // Store business data to azure table storage
+                        try
+                        {
+                            outputTable.Add(new TelemetryOutput { PartitionKey = "Temperature3e", RowKey = parsedData.Id.ToString(), Message = parsedData.Temperature.ToString() });
+                        }
+                        catch (Exception exception)
+                        {
+                            log.LogWarning(exception, "Failed to save temperature reading. Does rowid already exist?");
+                        }
                     }
                 }
             }
@@ -112,7 +144,7 @@ namespace Receive
             {
                 for (int i = startBit; i <= startBit + numberOfBits - 1; i++)
                 {
-                    result = (byte) (result & ~(1 << bitNumber) | ((bitArray[i] ? 1 : 0) << bitNumber));
+                    result = (byte)(result & ~(1 << bitNumber) | ((bitArray[i] ? 1 : 0) << bitNumber));
                     bitNumber++;
                 }
             }
@@ -128,6 +160,26 @@ namespace Receive
             }
             return ba;
         }
+
+        internal static List<KineisCsv> ParseKineisCsv(string data)
+        {
+            using (TextReader textReader = new StringReader(data))
+            {
+                using (var csv = new CsvReader(textReader, new CsvConfiguration(CultureInfo.CurrentCulture) { Delimiter = ";", HasHeaderRecord = true, BadDataFound = null}))
+                {
+                    var records = csv.GetRecords<KineisCsv>().ToList();
+                    foreach (var record in records)
+                    {
+                        if (!string.IsNullOrEmpty(record.Sensors)) {
+                            var datum = JsonSerializer.Deserialize<KineisDatum>(record.Sensors.Replace("\"\"", "\""));
+                            record.RawSensorData = datum.RawData;
+                        }
+                    }
+                    return records;
+                }
+            }
+        }
+
     }
 
 }
