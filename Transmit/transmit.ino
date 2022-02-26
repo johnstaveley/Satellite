@@ -142,8 +142,67 @@ void loop() {
 bool canTransmit() {
   bool transmit = false;  
   SatellitePass satellitePasses[] PROGMEM = {
-    SatellitePass (DateTime (2022,2,27,5,5,18), DateTime (2022,2,27,5,10,25))
-    // add in more passes
+    SatellitePass (DateTime (2022,2,26,12,39,26), DateTime (2022,2,26,12,43,20)),
+    SatellitePass (DateTime (2022,2,26,12,42,55), DateTime (2022,2,26,12,44,46)),
+    SatellitePass (DateTime (2022,2,26,17,9,1), DateTime (2022,2,26,17,11,2)),
+    SatellitePass (DateTime (2022,2,26,17,10,43), DateTime (2022,2,26,17,14,37)),
+    SatellitePass (DateTime (2022,2,26,17,12,39), DateTime (2022,2,26,17,16,56)),
+    SatellitePass (DateTime (2022,2,26,17,41,48), DateTime (2022,2,26,17,46,20)),
+    SatellitePass (DateTime (2022,2,26,18,21,40), DateTime (2022,2,26,18,23,2)),
+    SatellitePass (DateTime (2022,2,26,18,41,52), DateTime (2022,2,26,18,45,27)),
+    SatellitePass (DateTime (2022,2,26,18,48,41), DateTime (2022,2,26,18,53,55)),
+    SatellitePass (DateTime (2022,2,26,18,51,39), DateTime (2022,2,26,18,57,7)),
+    SatellitePass (DateTime (2022,2,26,19,11,7), DateTime (2022,2,26,19,15,5)),
+    SatellitePass (DateTime (2022,2,26,19,13,2), DateTime (2022,2,26,19,15,58)),
+    SatellitePass (DateTime (2022,2,26,19,21,4), DateTime (2022,2,26,19,25,53)),
+    SatellitePass (DateTime (2022,2,26,19,56,57), DateTime (2022,2,26,20,1,56)),
+    SatellitePass (DateTime (2022,2,26,20,31,41), DateTime (2022,2,26,20,34,31)),
+    SatellitePass (DateTime (2022,2,26,20,35,42), DateTime (2022,2,26,20,38,40)),
+    SatellitePass (DateTime (2022,2,26,20,49,19), DateTime (2022,2,26,20,54,37)),
+    SatellitePass (DateTime (2022,2,26,20,50,19), DateTime (2022,2,26,20,55,41)),
+    SatellitePass (DateTime (2022,2,26,21,2,40), DateTime (2022,2,26,21,4,10)),
+    SatellitePass (DateTime (2022,2,26,21,37,14), DateTime (2022,2,26,21,42,6)),
+    SatellitePass (DateTime (2022,2,26,22,32,6), DateTime (2022,2,26,22,36,42)),
+    SatellitePass (DateTime (2022,2,26,22,32,27), DateTime (2022,2,26,22,35,31)),
+    SatellitePass (DateTime (2022,2,27,3,28,9), DateTime (2022,2,27,3,31,40)),
+    SatellitePass (DateTime (2022,2,27,3,55,6), DateTime (2022,2,27,3,57,41)),
+    SatellitePass (DateTime (2022,2,27,5,5,18), DateTime (2022,2,27,5,10,25)),
+    SatellitePass (DateTime (2022,2,27,5,27,51), DateTime (2022,2,27,5,31,27)),
+    SatellitePass (DateTime (2022,2,27,6,47,13), DateTime (2022,2,27,6,50,30)),
+    SatellitePass (DateTime (2022,2,27,6,57,28), DateTime (2022,2,27,7,1,36)),
+    SatellitePass (DateTime (2022,2,27,7,7,16), DateTime (2022,2,27,7,11,48)),
+    SatellitePass (DateTime (2022,2,27,8,36,43), DateTime (2022,2,27,8,41,50)),
+    SatellitePass (DateTime (2022,2,27,8,47,32), DateTime (2022,2,27,8,52,51)),
+    SatellitePass (DateTime (2022,2,27,9,0,25), DateTime (2022,2,27,9,4,39)),
+    SatellitePass (DateTime (2022,2,27,9,6,44), DateTime (2022,2,27,9,9,43)),
+    SatellitePass (DateTime (2022,2,27,9,47,9), DateTime (2022,2,27,9,52,17)),
+    SatellitePass (DateTime (2022,2,27,10,17,51), DateTime (2022,2,27,10,20,44)),
+    SatellitePass (DateTime (2022,2,27,10,29,32), DateTime (2022,2,27,10,32,33)),
+    SatellitePass (DateTime (2022,2,27,10,40,1), DateTime (2022,2,27,10,45,11)),
+    SatellitePass (DateTime (2022,2,27,10,45,53), DateTime (2022,2,27,10,51,17)),
+    SatellitePass (DateTime (2022,2,27,11,27,39), DateTime (2022,2,27,11,32,11)),
+    SatellitePass (DateTime (2022,2,27,12,21,25), DateTime (2022,2,27,12,24,24)),
+    SatellitePass (DateTime (2022,2,27,12,27,14), DateTime (2022,2,27,12,31,29)),
+    SatellitePass (DateTime (2022,2,27,16,46,43), DateTime (2022,2,27,16,49,45)),
+    SatellitePass (DateTime (2022,2,27,17,1,19), DateTime (2022,2,27,17,5,15)),
+    SatellitePass (DateTime (2022,2,27,17,11,24), DateTime (2022,2,27,17,14,58)),
+    SatellitePass (DateTime (2022,2,27,18,23,31), DateTime (2022,2,27,18,28,41)),
+    SatellitePass (DateTime (2022,2,27,18,26,30), DateTime (2022,2,27,18,30,9)),
+    SatellitePass (DateTime (2022,2,27,18,39,49), DateTime (2022,2,27,18,45,17)),
+    SatellitePass (DateTime (2022,2,27,18,49,53), DateTime (2022,2,27,18,54,57)),
+    SatellitePass (DateTime (2022,2,27,18,51,26), DateTime (2022,2,27,18,54,39)),
+    SatellitePass (DateTime (2022,2,27,19,1,53), DateTime (2022,2,27,19,4,11)),
+    SatellitePass (DateTime (2022,2,27,19,36,43), DateTime (2022,2,27,19,41,21)),
+    SatellitePass (DateTime (2022,2,27,20,2,5), DateTime (2022,2,27,20,3,37)),
+    SatellitePass (DateTime (2022,2,27,20,4,54), DateTime (2022,2,27,20,8,57)),
+    SatellitePass (DateTime (2022,2,27,20,23,1), DateTime (2022,2,27,20,26,40)),
+    SatellitePass (DateTime (2022,2,27,20,28,41), DateTime (2022,2,27,20,33,57)),
+    SatellitePass (DateTime (2022,2,27,20,30,24), DateTime (2022,2,27,20,33,37)),  
+    SatellitePass (DateTime (2022,2,27,20,38,30), DateTime (2022,2,27,20,43,44)),
+    SatellitePass (DateTime (2022,2,27,21,16,6), DateTime (2022,2,27,21,21,16)),
+    SatellitePass (DateTime (2022,2,27,22,10,30), DateTime (2022,2,27,22,14,33)),
+    SatellitePass (DateTime (2022,2,27,22,19,42), DateTime (2022,2,27,22,24,35))
+    // TODO: add in more passes
   };
   for (int satellite = 0; satellite < sizeof(satellitePasses) / sizeof(SatellitePass); satellite++) {
     if (satellitePasses[satellite].isInRange(rtc.now())) {
@@ -201,16 +260,13 @@ void initialiseSdCard() {
     Serial.flush();
     while (1) delay(10);
   }
+  delay(2000); // Allow the RTC crystal time to stabilise
 
   if (!rtc.initialized() || rtc.lostPower()) {
     Serial.println(F("RTC is NOT initialized, let's set the time!"));
     // When time needs to be set on a new device, or after a power loss, the
     // following line sets the RTC to the date & time this sketch was compiled
     rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-    // Note: allow 2 seconds after inserting battery or applying external power
-    // without battery before calling adjust(). This gives the PCF8523's
-    // crystal oscillator time to stabilize. If you call adjust() very quickly
-    // after the RTC is powered, lostPower() may still return true.
   }
   rtc.start(); 
 

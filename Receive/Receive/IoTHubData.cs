@@ -30,7 +30,7 @@ namespace Receive
             [Table("Kineis", Connection = "AzureWebJobsStorage")] ICollector<TelemetryOutput> outputTable,
             Binder binder, ILogger log)
         {
-            // Get incoming data packet
+            // Get incoming kineis data packet
             var payload = Encoding.UTF8.GetString(message.Body.Array);
             var deviceId = message.SystemProperties["iothub-connection-device-id"];
             log.LogInformation($"IoT Hub trigger function processed a message: {payload} from {deviceId}");
@@ -127,11 +127,11 @@ namespace Receive
             // TODO: Extract day and time:
             // Skip 23 bits
             //DAT_DAY_1 5 bits = [1-31] days
-            result.Day = ExtractNumberFromBits(bytes, 24, 5);
+            result.Day = ExtractNumberFromBits(bytes, 22, 5);
             //DAT_HOUR_1 5 bits = [0-23] hours
-            result.Hour = ExtractNumberFromBits(bytes, 29, 5);
+            result.Hour = ExtractNumberFromBits(bytes, 27, 5);
             //DAT_MIN_1 6 bits = [0-59] minutes
-            result.Minute = ExtractNumberFromBits(bytes, 34, 6);
+            result.Minute = ExtractNumberFromBits(bytes, 32, 6);
             return result;
         }
 

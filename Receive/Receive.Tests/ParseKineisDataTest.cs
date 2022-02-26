@@ -19,6 +19,7 @@ namespace Receive.Tests
         [TestCase("068BE341836EE80086A0387C3236317C302E39344300080000400016F49320", "|261|0.94C", 261, 0.94, true)]
         [TestCase("E80CEC09A32EE80186A0387C337C352E3136430000000000004002B6A64150", "|3|5.16C", 3, 5.16, true)]
         [TestCase("F76AC36EE80186A0387C31387C32302E323443000000000000", "|18|20.24C", 18, 20.24, true)]
+        [TestCase("FA63836EE80186A0387C327C31332E39324300000000000000", "|2|13.92C", 2, 13.92, true)]
         public void Given_KineisData_When_Parse_Then_ReturnsConvertedString(string stringToParse, string expectedUserData, int expectedId, double expectedTemperature, bool expectedIsValid)
         {
             // Arrange
@@ -33,6 +34,21 @@ namespace Receive.Tests
             Assert.That(result.Id, Is.EqualTo(expectedId));
             Assert.That(result.Temperature, Is.EqualTo(expectedTemperature));
             Assert.That(result.IsValid, Is.EqualTo(expectedIsValid));
+
+        }
+
+        [TestCase("FA63836EE80186A0387C327C31332E39324300000000000000", 26, 13, 40)]
+        public void Given_KineisData_When_Parse_Then_ReturnsDate(string stringToParse, int expectedDay, int expectedHour, int expectedMinute)
+        {
+            // Arrange
+
+            // Act
+            var result = IoTHubData.ParseKineisData(stringToParse);
+
+            // Assert
+            Assert.That(result.Day, Is.EqualTo(expectedDay));
+            Assert.That(result.Hour, Is.EqualTo(expectedHour));
+            Assert.That(result.Minute, Is.EqualTo(expectedMinute));
 
         }
 
