@@ -8,10 +8,14 @@ namespace Receive.Models
         [JsonPropertyName("DEVICE_ID")]
         public string DeviceId { get; set; }
         [JsonPropertyName("MSG_DATE")]
-        public DateTime MessageDate { get; set; }
+        public DateTime? MessageDate { get; set; }
         [JsonPropertyName("MSG_ID")]
         public int MessageId { get; set; }
         [JsonPropertyName("RAW_DATA")]
         public string RawData { get; set; }
+        [JsonPropertyName("CHECKED")]
+        public bool? IsChecked { get; set; }
+        [JsonPropertyName("SENSORS")]
+        public KineisSensors Sensors { get; set; }
     }
 }

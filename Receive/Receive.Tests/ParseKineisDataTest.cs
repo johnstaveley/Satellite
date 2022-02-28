@@ -37,7 +37,7 @@ namespace Receive.Tests
 
         }
 
-        [TestCase("FA63836EE80186A0387C327C31332E39324300000000000000", 26, 13, 40)]
+        [TestCase("FA63836EE80186A0387C327C31332E39324300000000000000", 26, 13, 40)] // Should have been 26, 12, 40?
         public void Given_KineisData_When_Parse_Then_ReturnsDate(string stringToParse, int expectedDay, int expectedHour, int expectedMinute)
         {
             // Arrange

@@ -61,7 +61,7 @@ namespace Receive
                         // Store business data to azure table storage
                         try
                         {
-                            outputTable.Add(new TelemetryOutput { PartitionKey = "Temperature3c", RowKey = parsedData.Id.ToString(), Message = parsedData.Temperature.ToString() });
+                            outputTable.Add(new TelemetryOutput { PartitionKey = "Temperature3e", RowKey = parsedData.Id.ToString(), Message = parsedData.Temperature.ToString() });
                         }
                         catch (Exception exception)
                         {
@@ -76,8 +76,10 @@ namespace Receive
                 var result = JsonSerializer.Deserialize<KineisRoot>(payload);
                 foreach (var data in result.Data)
                 {
-                    var parsedData = ParseKineisData(data.RawData);
-                    log.LogInformation($"Received raw data {data.RawData} which converted to {parsedData.Converted}, Id: {parsedData.Id}, Temperature: {parsedData.Temperature}, IsValid: {parsedData.IsValid}");
+                    // Deal with both types of schema with varying locations of raw data
+                    var rawData = data.Sensors != null ? data.Sensors.RawData : data.RawData;
+                    var parsedData = ParseKineisData(rawData);
+                    log.LogInformation($"Received raw data {rawData} which converted to {parsedData.Converted}, Id: {parsedData.Id}, Temperature: {parsedData.Temperature}, IsValid: {parsedData.IsValid}");
                     if (parsedData.IsValid)
                     {
                         // Store business data to azure table storage
